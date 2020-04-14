@@ -1,0 +1,51 @@
+{
+  "name": "the-goat",
+  "version": "0.0.0",
+  "description": "tree building parsing expression grammars",
+  "author": "insidewhy <github@chilon.net>",
+  "license": "ISC",
+  "keywords": [
+    "parser",
+    "peg",
+    "tbpeg"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/insidewhy/the-goat.git"
+  },
+  "main": "dist/index.js",
+  "typings": "dist/index",
+  "bin": {
+    "the-goat": "./bin/the-goat"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "prepublishOnly": "yarn build",
+    "build": "tsc -p src",
+    "clean": "rimraf dist",
+    "lint": "eslint 'src/*.ts'",
+    "lint-fix": "yarn lint --fix",
+    "run-prettier": "prettier 'src/*.ts' '*.md'",
+    "validate-prettiness": "yarn run-prettier -c",
+    "make-prettier": "yarn run-prettier --write",
+    "test": "yarn jest",
+    "watch": "yarn build && concurrently 'yarn build-watch' 'yarn jest-watch'",
+    "validate": "yarn test && yarn lint && yarn validate-prettiness",
+    "jest-watch": "yarn jest --watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "^25.2.1",
+    "@types/node": "12.12.35",
+    "@typescript-eslint/eslint-plugin": "2.28.0",
+    "@typescript-eslint/parser": "2.28.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.1",
+    "husky": "4.2.5",
+    "jest": "^25.3.0",
+    "prettier": "2.0.4",
+    "pretty-quick": "2.0.1",
+    "rimraf": "3.0.2",
+    "typescript": "3.8.3"
+  }
+}
