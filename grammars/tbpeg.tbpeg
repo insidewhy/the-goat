@@ -1,0 +1,18 @@
+Spacing <- \s+
+RuleName <- [A-Z]+ ^ [a-zA-Z_]+
+PropertyName <- [a-z_]+ ^ [a-zA-Z_]+
+
+Grammar <- Rule+
+
+Rule <=
+  name:RuleName
+  type:enum("<=" as TREE_RULE / "<-" as RULE)
+  expression:Expression
+
+Expression <- $next
+Alternation <= expressions:$next |%+ "/"
+Sequence <= expressions:$next|+
+Join <= expressions:$next |%+ "%"
+Assignment <= (propertyName:PropertyName ":")|? expression:$next
+ExpressionLeaf <- "(" expression: Expression ")" / (RuleName &!"<")
+

@@ -1,0 +1,27 @@
+Spacing <- \s+
+Terminator <- ";"
+Identifier <- [a-zA-Z_]+
+
+Grammar <- Expression+
+
+# TODO: more expression types
+Expression <- SelectExpression
+
+SelectExpression <=
+  "select" ~ columns:(Identifier %+ ",") ~
+  "from" ~ join:JoinExpression ~
+  ("where" ~ where:Clause)?
+  Terminator
+
+
+JoinExpression <=
+  tableName:Identifier (
+    joinedWith:enum(
+      "," as INNER /
+      "inner join" as INNER /
+      "outer join" as OUTER /
+      "left join" as LEFT /
+      "right join" as RIGHT
+    )
+    JoinExpression
+  )?
