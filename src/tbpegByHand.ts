@@ -1,9 +1,22 @@
-import { Parser } from './parser'
+/* eslint-disable @typescript-eslint/no-use-before-define */
+import { Parser, Ast } from './parser'
+import { parseAlternation, parseAtLeastOne } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
 
-export interface Ast<T extends string> {
-  type: T
+export class GrammarParser extends Parser {
+  skipSpacing(): void {
+    for (const { next } = this; next === ' ' || next === '\t' || next === '\n'; this.advance()) {}
+  }
+
+  parse(): Grammar | undefined {
+    return parseGrammar(this)
+  }
+}
+
+function parseGrammar(p: Parser): Grammar | undefined {
+  p.skipSpacing()
+  return parseAtLeastOne(p, (p) => parseAlternation(p, parseRule, parseTreeRule))
 }
 
 export interface RuleName extends Ast<'RuleName'> {
@@ -17,6 +30,11 @@ export interface PropertyName extends Ast<'PropertyName'> {
 export interface Rule extends Ast<'Rule'> {
   name: RuleName
   expression: Expression
+}
+
+function parseRule(p: Parser): Rule | undefined {
+  // TODO:
+  return undefined
 }
 
 export type Expression =
@@ -114,6 +132,11 @@ export interface TreeRule extends Ast<'TreeRule'> {
   expression: TreeExpression
 }
 
+function parseTreeRule(p: Parser): TreeRule | undefined {
+  // TODO:
+  return undefined
+}
+
 export type TreeExpression = TreeRepetition | TreeJoin | TreeOptions | Expression
 
 export interface TreeRepetition extends Ast<'TreeRepetition'> {
@@ -131,17 +154,4 @@ export interface TreeOptions extends Ast<'TreeOptions'> {
 
 export interface TreeOption extends Ast<'TreeOption'> {
   option: Assignment | Join | Lexeme | Repetition | ExpressionLeaf
-}
-
-function parseSpacing(parser: Parser): void {
-  for (
-    const { next } = parser;
-    next === ' ' || next === '\t' || next === '\n';
-    parser.advance()
-  ) {}
-}
-
-export function parseGrammar(parser: Parser): Grammar {
-  const ast: Grammar = []
-  return ast
 }
