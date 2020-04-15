@@ -43,6 +43,8 @@ export interface Assignment extends Ast<'Assignment'> {
 
 export interface Join extends Ast<'Join'> {
   expressions: Array<Lexeme | Repetition | ExpressionLeaf>
+  repetition: 'OneOrMore' | 'ZeroOrMore'
+  joinWith: Array<Lexeme | Repetition | ExpressionLeaf>
 }
 
 export interface Lexeme extends Ast<'Lexeme'> {
@@ -140,6 +142,6 @@ function parseSpacing(parser: Parser): void {
 }
 
 export function parseGrammar(parser: Parser): Grammar {
-  // TODO:
-  return []
+  const ast: Grammar = []
+  return ast
 }
