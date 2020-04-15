@@ -13,13 +13,21 @@ class Parser extends AbstractParser {
 
 describe('operator', () => {
   describe('parseAlternation', () => {
+    const parseConstantsAlternation = parseAlternation(
+      parseConstant('oh'),
+      parseConstant('cat'),
+    )
+
     it('parses first alternation match', () => {
       const p = new Parser('oh cat')
-      const value = parseAlternation(
-        parseConstant('oh'),
-        parseConstant('cat'),
-      )(p)
+      const value = parseConstantsAlternation(p)
       expect(value).toEqual('oh')
+    })
+
+    it('parses second alternation match', () => {
+      const p = new Parser('cat oh')
+      const value = parseConstantsAlternation(p)
+      expect(value).toEqual('cat')
     })
   })
 })
