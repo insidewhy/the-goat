@@ -8,9 +8,9 @@ Grammar <- Expression+
 Expression <- SelectExpression
 
 SelectExpression <=
-  "select" ~ columns:(Identifier %+ ",") ~
-  "from" ~ join:JoinExpression ~
-  ("where" ~ where:Clause)?
+  "select" ~ columns:(Identifier %+ ",")
+  ~ "from" ~ join:JoinExpression
+  (~ "where" ~ where:Clause)?
   Terminator
 
 
@@ -23,5 +23,5 @@ JoinExpression <=
       "left join" $as LEFT /
       "right join" $as RIGHT
     )
-    JoinExpression
+    joinExpression:JoinExpression
   )?
