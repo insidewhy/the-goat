@@ -2,18 +2,19 @@ import { Parser } from './parser'
 
 export type Grammar = Array<TreeRule | Rule>
 
-export interface RuleName {
-  type: 'RuleName'
+export interface Ast<T extends string> {
+  type: T
+}
+
+export interface RuleName extends Ast<'RuleName'> {
   value: string
 }
 
-export interface PropertyName {
-  type: 'PropertyName'
+export interface PropertyName extends Ast<'PropertyName'> {
   value: string
 }
 
-export interface Rule {
-  type: 'Rule'
+export interface Rule extends Ast<'Rule'> {
   name: RuleName
   expression: Expression
 }
@@ -27,34 +28,28 @@ export type Expression =
   | Repetition
   | ExpressionLeaf
 
-export interface Alternation {
-  type: 'Alternation'
+export interface Alternation extends Ast<'Alternation'> {
   expressions: Array<Sequence | Assignment | Join | Lexeme | Repetition | ExpressionLeaf>
 }
 
-export interface Sequence {
-  type: 'Sequence'
+export interface Sequence extends Ast<'Sequence'> {
   expressions: Array<Assignment | Join | Lexeme | Repetition | ExpressionLeaf>
 }
 
-export interface Assignment {
-  type: 'Assignment'
+export interface Assignment extends Ast<'Assignment'> {
   propertyName: PropertyName
   expression: Array<Join | Lexeme | Repetition | ExpressionLeaf>
 }
 
-export interface Join {
-  type: 'Join'
+export interface Join extends Ast<'Join'> {
   expressions: Array<Lexeme | Repetition | ExpressionLeaf>
 }
 
-export interface Lexeme {
-  type: 'Lexeme'
+export interface Lexeme extends Ast<'Lexeme'> {
   expressions: Array<Repetition | ExpressionLeaf>
 }
 
-export interface Repetition {
-  type: 'Repetition'
+export interface Repetition extends Ast<'Repetition'> {
   expression: ExpressionLeaf
   repetition: 'OneOrMore' | 'ZeroOrMore'
 }
@@ -70,88 +65,69 @@ export type ExpressionLeaf =
   | Characters
   | Next
 
-export interface Group {
-  type: 'Group'
+export interface Group extends Ast<'Group'> {
   expression: Expression
 }
 
-export interface String {
-  type: 'String'
+export interface String extends Ast<'String'> {
   value: string
 }
 
-export interface EscapeSequence {
-  type: 'EscapeSequence'
+export interface EscapeSequence extends Ast<'EscapeSequence'> {
   value: string
 }
 
-export interface SpacingRule {
-  type: 'SpacingRule'
-}
+export type SpacingRule = Ast<'SpacingRule'>
 
 export type Constant = String | SpacingRule | EscapeSequence
 
-export interface Next {
-  type: 'Next'
-}
+export type Next = Ast<'Next'>
 
-export interface AnyCharacter {
-  type: 'AnyCharacter'
-}
+export type AnyCharacter = Ast<'AnyCharacter'>
 
-export interface EscapeCode {
-  type: 'EscapeCode'
+export interface EscapeCode extends Ast<'EscapeCode'> {
   code: string
 }
 
-export interface Enum {
-  type: 'Enum'
+export interface Enum extends Ast<'Enum'> {
   expression: EnumValAssignment[]
 }
 
-export interface EnumValAssignment {
-  type: 'EnumValAssignment'
+export interface EnumValAssignment extends Ast<'EnumValAssignment'> {
   match: Constant
   enumValue: string
 }
 
-export interface Characters {
-  type: 'Characters'
+export interface Characters extends Ast<'Characters'> {
   matches: Array<CharacterRange | EscapeCode | EscapeSequence>
 }
 
-export interface CharacterRange {
-  type: 'CharacterRange'
+export interface CharacterRange extends Ast<'CharacterRange'> {
   from: string
   to: string
 }
 
-export interface TreeRule {
-  type: 'TreeRule'
+export interface TreeRule extends Ast<'TreeRule'> {
   name: RuleName
   expression: TreeExpression
 }
 
 export type TreeExpression = TreeRepetition | TreeJoin | TreeOptions | Expression
 
-export interface TreeRepetition {
-  type: 'TreeRepetition'
+export interface TreeRepetition extends Ast<'TreeRepetition'> {
   expression: Expression
 }
 
-export interface TreeJoin {
-  type: 'TreeJoin'
+export interface TreeJoin extends Ast<'TreeJoin'> {
   expression: Expression
   joinWith: Constant
 }
 
-export interface TreeOptions {
-  type: 'TreeOptions'
+export interface TreeOptions extends Ast<'TreeOptions'> {
   options: Array<Expression | TreeOption>
 }
 
-export interface TreeOption {
-  type: 'TreeOption'
+export interface TreeOption extends Ast<'TreeOption'> {
   option: Assignment | Join | Lexeme | Repetition | ExpressionLeaf
 }
 
