@@ -16,12 +16,12 @@ SelectExpression <=
 
 JoinExpression <=
   tableName:Identifier (
-    joinedWith:enum(
-      "," as INNER /
-      "inner join" as INNER /
-      "outer join" as OUTER /
-      "left join" as LEFT /
-      "right join" as RIGHT
+    joinedWith:$enum(
+      "," $as INNER /
+      "inner join" $as INNER /
+      "outer join" $as OUTER /
+      "left join" $as LEFT /
+      "right join" $as RIGHT
     )
     JoinExpression
   )?
