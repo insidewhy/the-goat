@@ -40,8 +40,8 @@ Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
 AnyCharacter <= "."
 EscapeCode <= \\ ^ code:("w" / "s")
-Enum <= "$enum" "(" expression:(Join / EnumValAssignment)+ %+ "/" ")"
-EnumValAssignment <= constant:Constant ~ "$as" ~ enumValue:[a-zA-Z_]+
+Enum <= "$enum" "(" expression:(EnumValAssignment %+ "/") ")"
+EnumValAssignment <= match:Constant ~ "$as" ~ enumValue:[a-zA-Z_]+
 
 # expression leaf for character range
 Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / \w)+ ^ "]"
@@ -49,12 +49,10 @@ CharacterRange <= (from:\w) ^ "-" ^ (to:\w)
 
 # Tree rules
 TreeRule <= name:RuleName "<=" expression:TreeExpression
-TreeExpression <- TreeRepetition / TreeOptions / Expression
+TreeExpression <- TreeRepetition / TreeJoin / TreeOptions / Expression
 
-TreeRepetition <= expression:Expression treeRepetition:$enum(
-  "|+" $as TreeRepeat /
-  ("|%" $as TreeJoin) Constant /
-)
+TreeRepetition <= expression:Expression "|+"
+TreeJoin <= expression:Expression "|%" Constant
 
 TreeOptions <= (Expression / TreeOption)+
 TreeOption <= Assignment "|?"
