@@ -1,18 +1,56 @@
+# special
 Spacing <- \s+
+Grammar <- (Rule / TreeRule)+
+
+# general
 RuleName <- [A-Z]+ ^ [a-zA-Z_]+
 PropertyName <- [a-z_]+ ^ [a-zA-Z_]+
 
-Grammar <- Rule+
+# rules
+Rule <= name:RuleName "<-" expression:Expression
 
-Rule <=
-  name:RuleName
-  type:enum("<=" as TREE_RULE / "<-" as RULE)
-  expression:Expression
-
+# main expression tree
 Expression <- $next
-Alternation <= expressions:$next |%+ "/"
+Alternation <= expressions:$next |% "/"
 Sequence <= expressions:$next|+
-Join <= expressions:$next |%+ "%"
 Assignment <= (propertyName:PropertyName ":")|? expression:$next
-ExpressionLeaf <- "(" expression: Expression ")" / (RuleName &!"<")
+Join <= expressions:$next |% "%"
+Lexeme <= expressions:$next |% "^"
+Repetition <= expression:$next repetition:$enum("+" $as OneOrMore / "*" $as ZeroOrMore)|?
+ExpressionLeaf <-
+  Group /
+  (RuleName &!"<") /
+  Constant /
+  AnyCharacter /
+  EscapeCode /
+  Enum /
+  Characters /
+  Next
+Group <= "(" expression:Expression ")"
 
+# expression leafs
+String <= \" ^ (value:\w*) ^ \"
+EscapeSequence <= \\ ^ ( value:(\\ / "n") )
+SpacingRule <= "~"
+Constant <- String / SpacingRule / EscapeSequence
+Next <= "$next"
+AnyCharacter <= "."
+EscapeCode <= \\ ^ code:("w" / "s")
+Enum <= "$enum" "(" expression:(Join / EnumValAssignment)+ %+ "/" ")"
+EnumValAssignment <= constant:Constant ~ "$as" ~ enumValue:[a-zA-Z_]+
+
+# expression leaf for character range
+Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / \w)+ ^ "]"
+CharacterRange <= (from:\w) ^ "-" ^ (to:\w)
+
+# Tree rules
+TreeRule <= name:RuleName "<=" expression:TreeExpression
+TreeExpression <- TreeRepetition / TreeOptions / Expression
+
+TreeRepetition <= expression:Expression treeRepetition:$enum(
+  "|+" $as TreeRepeat /
+  ("|%" $as TreeJoin) Constant /
+)
+
+TreeOptions <= (Expression / TreeOption)+
+TreeOption <= Assignment "|?"
