@@ -13,3 +13,5 @@ rules:
     -
       multiline:
         delimiter: none
+  "@typescript-eslint/ban-types":
+    - off

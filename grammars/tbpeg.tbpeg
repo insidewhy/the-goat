@@ -3,7 +3,7 @@ Spacing <- \s+
 Grammar <- (Rule / TreeRule)+
 
 # general
-RuleName <- [A-Z]+ ^ [a-zA-Z_]+
+RuleName <= value:([A-Z]+ ^ [a-zA-Z_])+
 PropertyName <- [a-z_]+ ^ [a-zA-Z_]+
 
 # rules
@@ -52,7 +52,7 @@ TreeRule <= name:RuleName "<=" expression:TreeExpression
 TreeExpression <- TreeRepetition / TreeJoin / TreeOptions / Expression
 
 TreeRepetition <= expression:Expression "|+"
-TreeJoin <= expression:Expression "|%" Constant
+TreeJoin <= expression:Expression "|%" joinWith:Constant
 
-TreeOptions <= (Expression / TreeOption)+
-TreeOption <= Assignment "|?"
+TreeOptions <= options:(Expression / TreeOption)+
+TreeOption <= option:Assignment "|?"
