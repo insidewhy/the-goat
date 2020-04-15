@@ -6,7 +6,11 @@ export type Grammar = Array<TreeRule | Rule>
 
 export class GrammarParser extends Parser {
   skipSpacing(): void {
-    for (const { next } = this; next === ' ' || next === '\t' || next === '\n'; this.advance()) {}
+    for (
+      const { next } = this;
+      this.hasData() && (next === ' ' || next === '\t' || next === '\n');
+      this.advance()
+    ) {}
   }
 
   parse(): Grammar | undefined {
@@ -16,7 +20,9 @@ export class GrammarParser extends Parser {
 
 function parseGrammar(p: Parser): Grammar | undefined {
   p.skipSpacing()
-  return parseAtLeastOne(p, (p) => parseAlternation(p, parseRule, parseTreeRule))
+  return parseAtLeastOne(p, (p) =>
+    parseAlternation(p, parseRule, parseTreeRule),
+  )
 }
 
 export interface RuleName extends Ast<'RuleName'> {
@@ -47,7 +53,9 @@ export type Expression =
   | ExpressionLeaf
 
 export interface Alternation extends Ast<'Alternation'> {
-  expressions: Array<Sequence | Assignment | Join | Lexeme | Repetition | ExpressionLeaf>
+  expressions: Array<
+    Sequence | Assignment | Join | Lexeme | Repetition | ExpressionLeaf
+  >
 }
 
 export interface Sequence extends Ast<'Sequence'> {
@@ -137,7 +145,11 @@ function parseTreeRule(p: Parser): TreeRule | undefined {
   return undefined
 }
 
-export type TreeExpression = TreeRepetition | TreeJoin | TreeOptions | Expression
+export type TreeExpression =
+  | TreeRepetition
+  | TreeJoin
+  | TreeOptions
+  | Expression
 
 export interface TreeRepetition extends Ast<'TreeRepetition'> {
   expression: Expression

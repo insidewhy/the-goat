@@ -22,6 +22,7 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "build": "tsc -p src",
+    "build-watch": "yarn build -w",
     "clean": "rimraf dist",
     "lint": "eslint 'src/*.ts'",
     "lint-fix": "yarn lint --fix",
@@ -31,7 +32,7 @@
     "test": "yarn jest",
     "watch": "yarn build && concurrently 'yarn build-watch' 'yarn jest-watch'",
     "validate": "yarn test && yarn lint && yarn validate-prettiness",
-    "jest-watch": "yarn jest --watch"
+    "jest-watch": "yarn jest --watchAll"
   },
   "dependencies": {},
   "devDependencies": {

@@ -3,6 +3,15 @@ import { Parser } from './parser'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
+export function parseConstant(p: Parser, value: string): string | undefined {
+  if (p.data.slice(p.index, p.index + value.length) === value) {
+    p.index += value.length
+    return value
+  } else {
+    return undefined
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function parseAlternation<T extends any[]>(
   p: Parser,
@@ -14,6 +23,7 @@ export function parseAlternation<T extends any[]>(
       p.skipSpacing()
       return ruleAst
     }
+    return undefined
   }
   return undefined
 }
