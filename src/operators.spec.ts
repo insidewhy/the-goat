@@ -16,10 +16,9 @@ describe('operator', () => {
     it('parses first alternation match', () => {
       const p = new Parser('oh cat')
       const value = parseAlternation(
-        p,
-        (p: Parser) => parseConstant(p, 'oh'),
-        (p: Parser) => parseConstant(p, 'cat'),
-      )
+        parseConstant('oh'),
+        parseConstant('cat'),
+      )(p)
       expect(value).toEqual('oh')
     })
   })

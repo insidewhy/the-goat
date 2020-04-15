@@ -20,9 +20,7 @@ export class GrammarParser extends Parser {
 
 function parseGrammar(p: Parser): Grammar | undefined {
   p.skipSpacing()
-  return parseAtLeastOne(p, (p) =>
-    parseAlternation(p, parseRule, parseTreeRule),
-  )
+  return parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))(p)
 }
 
 export interface RuleName extends Ast<'RuleName'> {

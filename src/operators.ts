@@ -3,7 +3,9 @@ import { Parser } from './parser'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
-export function parseConstant(p: Parser, value: string): string | undefined {
+export const parseConstant = (value: string) => (
+  p: Parser,
+): string | undefined => {
   if (p.data.slice(p.index, p.index + value.length) === value) {
     p.index += value.length
     return value
@@ -13,10 +15,9 @@ export function parseConstant(p: Parser, value: string): string | undefined {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function parseAlternation<T extends any[]>(
+export const parseAlternation = <T extends any[]>(...rules: T) => (
   p: Parser,
-  ...rules: T
-): ReturnTypeUnion<T> | undefined {
+): ReturnTypeUnion<T> | undefined => {
   for (const rule of rules) {
     const ruleAst = rule(p)
     if (ruleAst !== undefined) {
@@ -28,10 +29,9 @@ export function parseAlternation<T extends any[]>(
   return undefined
 }
 
-export function parseAtLeastOne<T>(
+export const parseAtLeastOne = <T>(rule: (p: Parser) => T | undefined) => (
   p: Parser,
-  rule: (p: Parser) => T | undefined,
-): T[] | undefined {
+): T[] | undefined => {
   const ast: T[] = []
   while (p.hasData()) {
     const ruleAst = rule(p)
