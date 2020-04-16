@@ -1,5 +1,5 @@
 # special
-Spacing <- \s+
+Spacing <- \s^+
 Grammar <- (Rule / TreeRule)+
 
 # general
@@ -38,8 +38,8 @@ ExpressionLeaf <-
 Group <= "(" expression:Expression ")"
 
 # expression leafs
-String <= \" ^ (value:\w*) ^ \"
-EscapeSequence <= \\ ^ ( value:(\\ / "n") )
+String <= \" ^ value:(EscapeCodeSequence / ! \")^* ^ \"
+EscapeSequence <= \\ ^ ( value:(\\ / "n" / \") )
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
