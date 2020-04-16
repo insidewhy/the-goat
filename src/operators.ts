@@ -21,7 +21,6 @@ export const parseAlternation = <T extends any[]>(...rules: T) => (
   for (const rule of rules) {
     const ruleAst = rule(p)
     if (ruleAst !== undefined) {
-      p.skipSpacing()
       return ruleAst
     }
   }

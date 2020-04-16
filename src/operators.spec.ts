@@ -1,12 +1,12 @@
-import { parseAlternation, parseConstant } from './operators'
+import { parseAlternation, parseConstant, parseAtLeastOne } from './operators'
 import { Parser as AbstractParser } from './parser'
 
 class Parser extends AbstractParser {
   skipSpacing(): void {
     for (
-      const { next } = this;
+      let { next } = this;
       this.hasData() && next === ' ';
-      this.advance()
+      this.advance(), next = this.next
     ) {}
   }
 }
@@ -28,6 +28,24 @@ describe('operator', () => {
       const p = new Parser('cat oh')
       const value = parseConstantsAlternation(p)
       expect(value).toEqual('cat')
+    })
+  })
+
+  describe('parseAtLeastOne', () => {
+    const parseAtLeastOneConstantsAlternation = parseAtLeastOne(
+      parseAlternation(parseConstant('oh'), parseConstant('cat')),
+    )
+
+    it('parses many matches', () => {
+      const p = new Parser('ohcat')
+      const value = parseAtLeastOneConstantsAlternation(p)
+      expect(value).toEqual(['oh', 'cat'])
+    })
+
+    fit('parses many matches with whitespace in between', () => {
+      const p = new Parser('oh cat')
+      const value = parseAtLeastOneConstantsAlternation(p)
+      expect(value).toEqual(['oh', 'cat'])
     })
   })
 })
