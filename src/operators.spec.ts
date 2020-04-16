@@ -3,6 +3,7 @@ import {
   parseConstant,
   parseAtLeastOne,
   parseProperty,
+  parseObject,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -75,6 +76,19 @@ describe('operator', () => {
       )
       const value = alternation(p, result)
       expect(value).toEqual('oh')
+      expect(result).toEqual({ value: 'oh' })
+    })
+  })
+
+  describe('parseObject', () => {
+    const parseConstantToObjectProperty = parseObject(
+      () => ({ value: '' }),
+      parseProperty('value', parseConstant('oh')),
+    )
+
+    it('parses match into object property', () => {
+      const p = new Parser('oh')
+      const result = parseConstantToObjectProperty(p)
       expect(result).toEqual({ value: 'oh' })
     })
   })

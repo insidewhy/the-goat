@@ -57,3 +57,10 @@ export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
   ;(obj as any)[propName] = result
   return result
 }
+
+export const parseObject = <T, O>(factory: () => O, rule: ParserOp<T>) => (
+  p: Parser,
+): O | undefined => {
+  const obj = factory()
+  return rule(p, obj) ? obj : undefined
+}

@@ -21,29 +21,26 @@ export class GrammarParser extends Parser {
 
 const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
 
-// const parseRuleNameOp = parseProperty(
-//   'value',
-//   parseLexeme(
-//     parseCharacterRange('A', 'Z'),
-//     parseLexemeAtLeastOne(
-//       parseAlternation(
-//         parseCharacterRange('a', 'z'),
-//         parseCharacterRange('A', 'Z'),
-//         parseConstant('_'),
-//       ),
-//     ),
-//   ),
-// )
-
-function parseRuleName(p: Parser): RuleName | undefined {
-  // const ruleName = { value: '' }
-  // return parseRuleNameOp(p, ruleName)
-  return undefined
-}
-
 export interface RuleName extends Ast<'RuleName'> {
   value: string
 }
+
+// const parseRuleName = parseObject(
+//   () => { value: '' },
+//   parseProperty(
+//     'value',
+//     parseLexeme(
+//       parseCharacterRange('A', 'Z'),
+//       parseLexemeAtLeastOne(
+//         parseAlternation(
+//           parseCharacterRange('a', 'z'),
+//           parseCharacterRange('A', 'Z'),
+//           parseConstant('_'),
+//         ),
+//       ),
+//     ),
+//   )
+// )
 
 export interface PropertyName extends Ast<'PropertyName'> {
   value: string
@@ -56,11 +53,6 @@ export interface Rule extends Ast<'Rule'> {
 
 function parseRule(p: Parser): Rule | undefined {
   // TODO:
-  // const rule = { name: '', expression: '' }
-  // return parseSequence(
-  //   parseProperty(rule, 'name',
-  // )
-
   return undefined
 }
 
