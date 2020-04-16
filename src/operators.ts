@@ -58,6 +58,19 @@ export const parseCharacterRange = (from: string, to: string) => (
   }
 }
 
+export const parseLexeme = <T extends any[]>(...rules: T) => <O>(
+  p: Parser,
+  obj?: O,
+): string | undefined => {
+  const start = p.index
+  for (const rule of rules) {
+    if (!rule(p, obj)) {
+      return undefined
+    }
+  }
+  return p.data.slice(start, p.index)
+}
+
 export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,

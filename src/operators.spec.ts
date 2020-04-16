@@ -5,6 +5,7 @@ import {
   parseProperty,
   parseObject,
   parseCharacterRange,
+  parseLexeme,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -56,19 +57,29 @@ describe('operator', () => {
     })
   })
 
-  describe('parseCharacterRange', () => {
-    const parseBetweenAandZ = parseCharacterRange('a', 'z')
+  const parseAtoZ = parseCharacterRange('a', 'z')
 
+  describe('parseCharacterRange', () => {
     it('parses f using [a-z] and advances stream', () => {
       const p = new Parser('fh')
-      expect(parseBetweenAandZ(p)).toEqual('f')
+      expect(parseAtoZ(p)).toEqual('f')
       expect(p.next).toEqual('h')
     })
 
     it('does not parse F using [a-z] and does not advance stream', () => {
       const p = new Parser('Fh')
-      expect(parseBetweenAandZ(p)).toEqual(undefined)
+      expect(parseAtoZ(p)).toEqual(undefined)
       expect(p.next).toEqual('F')
+    })
+  })
+
+  describe('parseLexeme', () => {
+    const parseAtoZTwiceLexeme = parseLexeme(parseAtoZ, parseAtoZ)
+
+    it('parses cat using [a-z]^[a-z] and advances stream', () => {
+      const p = new Parser('cat')
+      expect(parseAtoZTwiceLexeme(p)).toEqual('ca')
+      expect(p.next).toEqual('t')
     })
   })
 
