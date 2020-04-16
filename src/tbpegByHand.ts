@@ -25,7 +25,7 @@ export interface RuleName extends Ast<'RuleName'> {
   value: string
 }
 
-// const parseRuleName = parseObject(
+// export const parseRuleName = parseObject(
 //   () => { value: '' },
 //   parseProperty(
 //     'value',
@@ -51,7 +51,7 @@ export interface Rule extends Ast<'Rule'> {
   expression: Expression
 }
 
-function parseRule(p: Parser): Rule | undefined {
+export function parseRule(p: Parser): Rule | undefined {
   // TODO:
   return undefined
 }
@@ -153,7 +153,7 @@ export interface TreeRule extends Ast<'TreeRule'> {
   expression: TreeExpression
 }
 
-function parseTreeRule(p: Parser): TreeRule | undefined {
+export function parseTreeRule(p: Parser): TreeRule | undefined {
   // TODO:
   return undefined
 }
