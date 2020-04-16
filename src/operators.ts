@@ -1,6 +1,5 @@
 import { Parser } from './parser'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
 type ParserOp<T> = (p: Parser, obj?: any) => T | undefined
@@ -16,7 +15,6 @@ export const parseConstant = (value: string) => (
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const parseAlternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
