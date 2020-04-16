@@ -1,1 +1,2 @@
-precommit: pretty-quick --staged
+hooks:
+  pre-commit: pretty-quick --staged
