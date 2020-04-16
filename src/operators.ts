@@ -3,6 +3,8 @@ import { Parser } from './parser'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
+type ParserOp<T> = (p: Parser) => T | undefined
+
 export const parseConstant = (value: string) => (
   p: Parser,
 ): string | undefined => {
@@ -27,7 +29,7 @@ export const parseAlternation = <T extends any[]>(...rules: T) => (
   return undefined
 }
 
-export const parseAtLeastOne = <T>(rule: (p: Parser) => T | undefined) => (
+export const parseAtLeastOne = <T>(rule: ParserOp<T>) => (
   p: Parser,
 ): T[] | undefined => {
   const ast: T[] = []
@@ -39,4 +41,15 @@ export const parseAtLeastOne = <T>(rule: (p: Parser) => T | undefined) => (
     }
   }
   return ast.length ? ast : undefined
+}
+
+export const parseProperty = <R>(propName: string, rule: ParserOp<R>) => <T>(
+  obj: T,
+) => (p: Parser): R | undefined => {
+  const result = rule(p)
+  if (!result) {
+    return undefined
+  }
+  ;(obj as any)[propName] = result
+  return result
 }

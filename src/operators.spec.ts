@@ -1,4 +1,9 @@
-import { parseAlternation, parseConstant, parseAtLeastOne } from './operators'
+import {
+  parseAlternation,
+  parseConstant,
+  parseAtLeastOne,
+  parseProperty,
+} from './operators'
 import { Parser as AbstractParser } from './parser'
 
 class Parser extends AbstractParser {
@@ -42,10 +47,35 @@ describe('operator', () => {
       expect(value).toEqual(['oh', 'cat'])
     })
 
-    fit('parses many matches with whitespace in between', () => {
+    it('parses many matches with whitespace in between', () => {
       const p = new Parser('oh cat')
       const value = parseAtLeastOneConstantsAlternation(p)
       expect(value).toEqual(['oh', 'cat'])
+    })
+  })
+
+  describe('parseProperty', () => {
+    const parseConstantToProperty = parseProperty('value', parseConstant('oh'))
+
+    it('parses match into property', () => {
+      const p = new Parser('oh')
+      const result = { value: '' }
+      const value = parseConstantToProperty(result)(p)
+      expect(value).toEqual('oh')
+      expect(result).toEqual({ value: 'oh' })
+    })
+
+    it('parses match within alternation into property', () => {
+      const p = new Parser('oh')
+
+      const result = { value: '' }
+      const alternation = parseAlternation(
+        parseConstantToProperty(result),
+        parseConstant('cat'),
+      )
+      const value = alternation(p)
+      expect(value).toEqual('oh')
+      expect(result).toEqual({ value: 'oh' })
     })
   })
 })

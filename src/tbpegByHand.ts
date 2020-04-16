@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Parser, Ast } from './parser'
-import { parseAlternation, parseAtLeastOne } from './operators'
+import { parseAlternation, parseAtLeastOne, parseConstant } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
 
@@ -14,13 +14,31 @@ export class GrammarParser extends Parser {
   }
 
   parse(): Grammar | undefined {
+    this.skipSpacing()
     return parseGrammar(this)
   }
 }
 
-function parseGrammar(p: Parser): Grammar | undefined {
-  p.skipSpacing()
-  return parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))(p)
+const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
+
+// const parseRuleNameValue = parseProperty(
+//   'value',
+//   parseLexeme(
+//     parseCharacterRange('A', 'Z'),
+//     parseLexemeAtLeastOne(
+//       parseAlternation(
+//         parseCharacterRange('a', 'z'),
+//         parseCharacterRange('A', 'Z'),
+//         parseConstant('_'),
+//       ),
+//     ),
+//   ),
+// )
+
+function parseRuleName(p: Parser): RuleName | undefined {
+  // const ruleName = { value: '' }
+  // return parseRuleNameValue(ruleName)(p)
+  return undefined
 }
 
 export interface RuleName extends Ast<'RuleName'> {
@@ -38,6 +56,11 @@ export interface Rule extends Ast<'Rule'> {
 
 function parseRule(p: Parser): Rule | undefined {
   // TODO:
+  // const rule = { name: '', expression: '' }
+  // return parseSequence(
+  //   parseProperty(rule, 'name',
+  // )
+
   return undefined
 }
 
