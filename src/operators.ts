@@ -26,7 +26,7 @@ export const parseAlternation = <T extends any[]>(...rules: T) => <O>(
       return ruleAst
     }
     // backtrack if a rule didn't match
-    p.index = initialIndex
+    p.restoreIndex(initialIndex)
   }
   return undefined
 }
@@ -44,6 +44,18 @@ export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
     }
   }
   return ast.length ? ast : undefined
+}
+
+export const parseCharacterRange = (from: string, to: string) => (
+  p: Parser,
+): string | undefined => {
+  const { next } = p
+  if (next >= from && next <= to) {
+    p.advance()
+    return next
+  } else {
+    return undefined
+  }
 }
 
 export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(

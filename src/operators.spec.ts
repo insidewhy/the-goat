@@ -4,6 +4,7 @@ import {
   parseAtLeastOne,
   parseProperty,
   parseObject,
+  parseCharacterRange,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -52,6 +53,22 @@ describe('operator', () => {
       const p = new Parser('oh cat')
       const value = parseAtLeastOneConstantsAlternation(p)
       expect(value).toEqual(['oh', 'cat'])
+    })
+  })
+
+  describe('parseCharacterRange', () => {
+    const parseBetweenAandZ = parseCharacterRange('a', 'z')
+
+    it('parses f using [a-z] and advances stream', () => {
+      const p = new Parser('fh')
+      expect(parseBetweenAandZ(p)).toEqual('f')
+      expect(p.next).toEqual('h')
+    })
+
+    it('does not parse F using [a-z] and does not advance stream', () => {
+      const p = new Parser('Fh')
+      expect(parseBetweenAandZ(p)).toEqual(undefined)
+      expect(p.next).toEqual('F')
     })
   })
 

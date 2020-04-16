@@ -24,4 +24,8 @@ export abstract class Parser {
   advance(): void {
     ++this.index
   }
+
+  restoreIndex(index: number): void {
+    this.index = index
+  }
 }
