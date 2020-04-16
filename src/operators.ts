@@ -19,11 +19,14 @@ export const parseAlternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
 ): ReturnTypeUnion<T> | undefined => {
+  const { index: initialIndex } = p
   for (const rule of rules) {
     const ruleAst = rule(p, obj)
     if (ruleAst !== undefined) {
       return ruleAst
     }
+    // backtrack if a rule didn't match
+    p.index = initialIndex
   }
   return undefined
 }
