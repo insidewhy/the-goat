@@ -21,7 +21,7 @@ export class GrammarParser extends Parser {
 
 const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
 
-// const parseRuleNameValue = parseProperty(
+// const parseRuleNameOp = parseProperty(
 //   'value',
 //   parseLexeme(
 //     parseCharacterRange('A', 'Z'),
@@ -37,7 +37,7 @@ const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
 
 function parseRuleName(p: Parser): RuleName | undefined {
   // const ruleName = { value: '' }
-  // return parseRuleNameValue(ruleName)(p)
+  // return parseRuleNameOp(p, ruleName)
   return undefined
 }
 

@@ -60,7 +60,7 @@ describe('operator', () => {
     it('parses match into property', () => {
       const p = new Parser('oh')
       const result = { value: '' }
-      const value = parseConstantToProperty(result)(p)
+      const value = parseConstantToProperty(p, result)
       expect(value).toEqual('oh')
       expect(result).toEqual({ value: 'oh' })
     })
@@ -70,10 +70,10 @@ describe('operator', () => {
 
       const result = { value: '' }
       const alternation = parseAlternation(
-        parseConstantToProperty(result),
+        parseConstantToProperty,
         parseConstant('cat'),
       )
-      const value = alternation(p)
+      const value = alternation(p, result)
       expect(value).toEqual('oh')
       expect(result).toEqual({ value: 'oh' })
     })

@@ -3,7 +3,7 @@ import { Parser } from './parser'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
-type ParserOp<T> = (p: Parser) => T | undefined
+type ParserOp<T> = (p: Parser, obj?: any) => T | undefined
 
 export const parseConstant = (value: string) => (
   p: Parser,
@@ -17,11 +17,12 @@ export const parseConstant = (value: string) => (
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseAlternation = <T extends any[]>(...rules: T) => (
+export const parseAlternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
+  obj?: O,
 ): ReturnTypeUnion<T> | undefined => {
   for (const rule of rules) {
-    const ruleAst = rule(p)
+    const ruleAst = rule(p, obj)
     if (ruleAst !== undefined) {
       return ruleAst
     }
@@ -29,12 +30,13 @@ export const parseAlternation = <T extends any[]>(...rules: T) => (
   return undefined
 }
 
-export const parseAtLeastOne = <T>(rule: ParserOp<T>) => (
+export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
+  obj?: O,
 ): T[] | undefined => {
   const ast: T[] = []
   while (p.hasData()) {
-    const ruleAst = rule(p)
+    const ruleAst = rule(p, obj)
     if (ruleAst) {
       ast.push(ruleAst)
       p.skipSpacing()
@@ -43,10 +45,11 @@ export const parseAtLeastOne = <T>(rule: ParserOp<T>) => (
   return ast.length ? ast : undefined
 }
 
-export const parseProperty = <R>(propName: string, rule: ParserOp<R>) => <T>(
-  obj: T,
-) => (p: Parser): R | undefined => {
-  const result = rule(p)
+export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
+  p: Parser,
+  obj?: O,
+): T | undefined => {
+  const result = rule(p, obj)
   if (!result) {
     return undefined
   }
