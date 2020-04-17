@@ -9,7 +9,7 @@ import {
   parseLexemeAtLeastOne,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
-import { parseRuleName } from './tbpegByHand'
+import { parseRuleName, parsePropertyName } from './tbpegByHand'
 
 class Parser extends AbstractParser {
   skipSpacing(): void {
@@ -153,10 +153,25 @@ describe('operator', () => {
         expect(result).toEqual({ type: 'RuleName', value: 'BabyChan' })
       })
 
-      it('matches Baby Chan up to space', () => {
+      it('matches "Baby Chan" up to space', () => {
         const p = new Parser('Baby Chan')
         const result = parseRuleName(p)
         expect(result).toEqual({ type: 'RuleName', value: 'Baby' })
+        expect(p.next).toEqual(' ')
+      })
+    })
+
+    describe('parsePropertyName', () => {
+      it('matches babyChan', () => {
+        const p = new Parser('babyChan')
+        const result = parsePropertyName(p)
+        expect(result).toEqual('babyChan')
+      })
+
+      it('matches "_baby chan" up to space', () => {
+        const p = new Parser('_baby chan')
+        const result = parsePropertyName(p)
+        expect(result).toEqual('_baby')
         expect(p.next).toEqual(' ')
       })
     })

@@ -55,6 +55,17 @@ export interface PropertyName extends Ast<'PropertyName'> {
   value: string
 }
 
+export const parsePropertyName = parseLexeme(
+  parseAlternation(parseCharacterRange('a', 'z'), parseConstant('_')),
+  parseLexemeAtLeastOne(
+    parseAlternation(
+      parseCharacterRange('a', 'z'),
+      parseCharacterRange('A', 'Z'),
+      parseConstant('_'),
+    ),
+  ),
+)
+
 export interface Rule extends Ast<'Rule'> {
   name: RuleName
   expression: Expression
