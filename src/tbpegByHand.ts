@@ -78,7 +78,11 @@ export interface Lexeme extends Ast<'Lexeme'> {
 
 export interface Repetition extends Ast<'Repetition'> {
   expression: ExpressionLeaf
-  repetition: 'OneOrMore' | 'ZeroOrMore'
+  repetition:
+    | 'OneOrMore'
+    | 'ZeroOrMore'
+    | 'LexemeOneOrMore'
+    | 'LexemeZeroOrMore'
 }
 
 export type ExpressionLeaf =
@@ -197,7 +201,7 @@ export const parsePropertyName = parseLexeme(
   ),
 )
 
-// TODO: extend
+// TODO: expression should parse more things
 export const parseExpression = parseRuleName
 
 const makeRule = (): Rule => ({ type: 'Rule' } as Rule)
