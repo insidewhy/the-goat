@@ -41,6 +41,8 @@ export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
     if (ruleAst) {
       ast.push(ruleAst)
       p.skipSpacing()
+    } else {
+      break
     }
   }
   return ast.length ? ast : undefined
@@ -69,6 +71,15 @@ export const parseLexeme = <T extends any[]>(...rules: T) => <O>(
     }
   }
   return p.data.slice(start, p.index)
+}
+
+export const parseLexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
+  p: Parser,
+  obj?: O,
+): string | undefined => {
+  const startIndex = p.index
+  while (p.hasData() && rule(p, obj)) {}
+  return p.index === startIndex ? undefined : p.data.slice(startIndex, p.index)
 }
 
 export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(

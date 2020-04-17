@@ -6,6 +6,7 @@ import {
   parseObject,
   parseCharacterRange,
   parseLexeme,
+  parseLexemeAtLeastOne,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -55,6 +56,13 @@ describe('operator', () => {
       const value = parseAtLeastOneConstantsAlternation(p)
       expect(value).toEqual(['oh', 'cat'])
     })
+
+    it('returns undefined when there are no matches', () => {
+      const p = new Parser('baby fraud')
+      const value = parseAtLeastOneConstantsAlternation(p)
+      expect(value).toEqual(undefined)
+      expect(p.index).toEqual(0)
+    })
   })
 
   const parseAtoZ = parseCharacterRange('a', 'z')
@@ -80,6 +88,21 @@ describe('operator', () => {
       const p = new Parser('cat')
       expect(parseAtoZTwiceLexeme(p)).toEqual('ca')
       expect(p.next).toEqual('t')
+    })
+  })
+
+  describe('parseLexemeAtLeastOne', () => {
+    const parseMultipleRanges = parseLexemeAtLeastOne(
+      parseAlternation(
+        parseCharacterRange('a', 'd'),
+        parseCharacterRange('m', 'z'),
+      ),
+    )
+
+    it('parses addat using [a-dm-z]^+ as adda and advances stream up to t', () => {
+      const p = new Parser('annaf')
+      expect(parseMultipleRanges(p)).toEqual('anna')
+      expect(p.next).toEqual('f')
     })
   })
 
