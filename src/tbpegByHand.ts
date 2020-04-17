@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Parser, Ast } from './parser'
-import { parseAlternation, parseAtLeastOne, parseConstant } from './operators'
+import {
+  parseAlternation,
+  parseAtLeastOne,
+  parseConstant,
+  parseObject,
+  parseProperty,
+  parseLexeme,
+  parseCharacterRange,
+  parseLexemeAtLeastOne,
+} from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
 
@@ -25,22 +34,22 @@ export interface RuleName extends Ast<'RuleName'> {
   value: string
 }
 
-// export const parseRuleName = parseObject(
-//   () => { value: '' },
-//   parseProperty(
-//     'value',
-//     parseLexeme(
-//       parseCharacterRange('A', 'Z'),
-//       parseLexemeAtLeastOne(
-//         parseAlternation(
-//           parseCharacterRange('a', 'z'),
-//           parseCharacterRange('A', 'Z'),
-//           parseConstant('_'),
-//         ),
-//       ),
-//     ),
-//   )
-// )
+export const parseRuleName = parseObject(
+  () => ({ type: 'RuleName' as const, value: '' }),
+  parseProperty(
+    'value',
+    parseLexeme(
+      parseCharacterRange('A', 'Z'),
+      parseLexemeAtLeastOne(
+        parseAlternation(
+          parseCharacterRange('a', 'z'),
+          parseCharacterRange('A', 'Z'),
+          parseConstant('_'),
+        ),
+      ),
+    ),
+  ),
+)
 
 export interface PropertyName extends Ast<'PropertyName'> {
   value: string
