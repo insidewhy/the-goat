@@ -101,17 +101,19 @@ export const parseObject = <T, O>(factory: () => O, rule: ParserOp<T>) => (
   return rule(p, obj) ? obj : undefined
 }
 
-type MapToReturnType<T> = T extends (args: any[]) => any
-  ? ReturnType<T>
+type WithoutUndefined<T> = T extends undefined ? never : T
+
+type SequenceReturnType<T> = T extends (...args: any[]) => any
+  ? WithoutUndefined<ReturnType<T>>
   : string
-type MapToReturnTypes<T extends any[]> = {
-  [K in keyof T]: MapToReturnType<T[K]>
+type SequenceReturnTypes<T extends any[]> = {
+  [K in keyof T]: SequenceReturnType<T[K]>
 }
 
 export const parseSequence = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
-): MapToReturnTypes<T> | undefined => {
+): SequenceReturnTypes<T> | undefined => {
   const ret: any[] = []
   for (const rule of rules) {
     const ruleValue = rule(p, obj)
@@ -121,5 +123,5 @@ export const parseSequence = <T extends any[]>(...rules: T) => <O>(
     ret.push(ruleValue)
     p.skipSpacing()
   }
-  return (ret as unknown) as MapToReturnTypes<T>
+  return (ret as unknown) as SequenceReturnTypes<T>
 }
