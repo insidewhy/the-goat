@@ -33,60 +33,14 @@ export interface RuleName extends Ast<'RuleName'> {
   value: string
 }
 
-export const parseRuleName = parseObject(
-  () => ({ type: 'RuleName' as const, value: '' }),
-  parseProperty(
-    'value',
-    parseLexeme(
-      parseCharacterRange('A', 'Z'),
-      parseLexemeAtLeastOne(
-        parseAlternation(
-          parseCharacterRange('a', 'z'),
-          parseCharacterRange('A', 'Z'),
-          parseConstant('_'),
-        ),
-      ),
-    ),
-  ),
-)
-
 export interface PropertyName extends Ast<'PropertyName'> {
   value: string
 }
-
-export const parsePropertyName = parseLexeme(
-  parseAlternation(parseCharacterRange('a', 'z'), parseConstant('_')),
-  parseLexemeAtLeastOne(
-    parseAlternation(
-      parseCharacterRange('a', 'z'),
-      parseCharacterRange('A', 'Z'),
-      parseConstant('_'),
-    ),
-  ),
-)
 
 export interface Rule extends Ast<'Rule'> {
   name: RuleName
   expression: Expression
 }
-
-// TODO: extend
-export const parseExpression = parseRuleName
-
-export const parseRule = parseObject(
-  () => ({
-    type: 'Rule' as const,
-    name: { type: 'RuleName' as const, value: '' },
-    expression: { type: 'RuleName' as const, value: '' },
-  }),
-  parseSequence(
-    parseProperty('name', parseRuleName),
-    parseConstant('<-'),
-    parseProperty('expression', parseExpression),
-  ),
-)
-
-const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
 
 export type Expression =
   | Alternation
@@ -212,3 +166,49 @@ export interface TreeOptions extends Ast<'TreeOptions'> {
 export interface TreeOption extends Ast<'TreeOption'> {
   option: Assignment | Join | Lexeme | Repetition | ExpressionLeaf
 }
+
+const makeRuleName = (): RuleName => ({ type: 'RuleName' } as RuleName)
+
+export const parseRuleName = parseObject(
+  makeRuleName,
+  parseProperty(
+    'value',
+    parseLexeme(
+      parseCharacterRange('A', 'Z'),
+      parseLexemeAtLeastOne(
+        parseAlternation(
+          parseCharacterRange('a', 'z'),
+          parseCharacterRange('A', 'Z'),
+          parseConstant('_'),
+        ),
+      ),
+    ),
+  ),
+)
+
+export const parsePropertyName = parseLexeme(
+  parseAlternation(parseCharacterRange('a', 'z'), parseConstant('_')),
+  parseLexemeAtLeastOne(
+    parseAlternation(
+      parseCharacterRange('a', 'z'),
+      parseCharacterRange('A', 'Z'),
+      parseConstant('_'),
+    ),
+  ),
+)
+
+// TODO: extend
+export const parseExpression = parseRuleName
+
+const makeRule = (): Rule => ({ type: 'Rule' } as Rule)
+
+export const parseRule = parseObject(
+  makeRule,
+  parseSequence(
+    parseProperty('name', parseRuleName),
+    parseConstant('<-'),
+    parseProperty('expression', parseExpression),
+  ),
+)
+
+const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
