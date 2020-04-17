@@ -1,5 +1,5 @@
 import { Parser as AbstractParser } from './parser'
-import { parseRuleName, parsePropertyName } from './tbpegByHand'
+import { parseRuleName, parsePropertyName, parseRule } from './tbpegByHand'
 
 class Parser extends AbstractParser {
   skipSpacing(): void {
@@ -40,6 +40,18 @@ describe('tbpegByHand', () => {
       const result = parsePropertyName(p)
       expect(result).toEqual('_baby')
       expect(p.next).toEqual(' ')
+    })
+  })
+
+  describe('parseRule', () => {
+    it('matches Name <= Other', () => {
+      const p = new Parser('Name <- Other')
+      const result = parseRule(p)
+      expect(result).toEqual({
+        type: 'Rule',
+        name: { type: 'RuleName', value: 'Name' },
+        expression: { type: 'RuleName', value: 'Other' },
+      })
     })
   })
 })

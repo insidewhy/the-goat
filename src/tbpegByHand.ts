@@ -9,6 +9,7 @@ import {
   parseLexeme,
   parseCharacterRange,
   parseLexemeAtLeastOne,
+  parseSequence,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -27,8 +28,6 @@ export class GrammarParser extends Parser {
     return parseGrammar(this)
   }
 }
-
-const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
 
 export interface RuleName extends Ast<'RuleName'> {
   value: string
@@ -71,10 +70,23 @@ export interface Rule extends Ast<'Rule'> {
   expression: Expression
 }
 
-export function parseRule(p: Parser): Rule | undefined {
-  // TODO:
-  return undefined
-}
+// TODO: extend
+export const parseExpression = parseRuleName
+
+export const parseRule = parseObject(
+  () => ({
+    type: 'Rule' as const,
+    name: { type: 'RuleName' as const, value: '' },
+    expression: { type: 'RuleName' as const, value: '' },
+  }),
+  parseSequence(
+    parseProperty('name', parseRuleName),
+    parseConstant('<-'),
+    parseProperty('expression', parseExpression),
+  ),
+)
+
+const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
 
 export type Expression =
   | Alternation

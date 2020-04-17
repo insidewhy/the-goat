@@ -26,6 +26,7 @@
     "clean": "rimraf dist",
     "lint": "eslint 'src/*.ts'",
     "lint-fix": "yarn lint --fix",
+    "typecheck": "yarn build --noEmit",
     "run-prettier": "prettier 'src/*.ts' '*.md'",
     "validate-prettiness": "yarn run-prettier -c",
     "make-prettier": "yarn run-prettier --write",
