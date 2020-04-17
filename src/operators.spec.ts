@@ -7,6 +7,7 @@ import {
   parseCharacterRange,
   parseLexeme,
   parseLexemeAtLeastOne,
+  parseSequence,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -89,6 +90,12 @@ describe('operator', () => {
       expect(parseAtoZTwiceLexeme(p)).toEqual('ca')
       expect(p.next).toEqual('t')
     })
+
+    it('returns undefined for cAt using [a-z]^[a-z] advancing stream to A', () => {
+      const p = new Parser('cAt')
+      expect(parseAtoZTwiceLexeme(p)).toEqual(undefined)
+      expect(p.next).toEqual('A')
+    })
   })
 
   describe('parseLexemeAtLeastOne', () => {
@@ -141,6 +148,26 @@ describe('operator', () => {
       const p = new Parser('oh')
       const result = parseConstantToObjectProperty(p)
       expect(result).toEqual({ value: 'oh' })
+    })
+  })
+
+  describe('parseSequence', () => {
+    const parseOhThenCat = parseSequence(
+      parseConstant('oh'),
+      parseConstant('cat'),
+    )
+
+    it('parses "oh cat" using ("oh" "cat") as ["oh", "cat"]', () => {
+      const p = new Parser('oh catb')
+      expect(parseOhThenCat(p)).toEqual(['oh', 'cat'])
+      expect(p.next).toEqual('b')
+    })
+
+    it('parses "oh bat" using ("oh" "cat") as undefined', () => {
+      const p = new Parser('oh bat')
+      expect(parseOhThenCat(p)).toEqual(undefined)
+      // the string is not reset, this is left to the alternation above
+      expect(p.next).toEqual('b')
     })
   })
 })
