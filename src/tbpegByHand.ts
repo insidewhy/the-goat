@@ -201,8 +201,28 @@ export const parsePropertyName = parseLexeme(
   ),
 )
 
+const makeGroup = (): Group => ({ type: 'Group' } as Group)
+
+export const parseGroup = parseObject(
+  makeGroup,
+  parseSequence(
+    parseConstant('('),
+    // must use forwarding function due to cyclic dependency between group and expression
+    parseProperty('expression', (p: Parser): Expression | undefined =>
+      parseExpression(p),
+    ),
+    parseConstant(')'),
+  ),
+)
+
+export const parseExpressionLeaf = parseAlternation(
+  parseGroup,
+  // TODO: parseSequence(parseRuleName, parseNotPredicate(parseConstant("<-")),
+  parseRuleName,
+)
+
 // TODO: expression should parse more things
-export const parseExpression = parseRuleName
+export const parseExpression = parseExpressionLeaf
 
 const makeRule = (): Rule => ({ type: 'Rule' } as Rule)
 
