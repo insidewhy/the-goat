@@ -1,15 +1,15 @@
 import {
-  parseAlternation,
-  parseConstant,
-  parseAtLeastOne,
-  parseProperty,
-  parseObject,
-  parseCharacterRange,
-  parseLexeme,
-  parseLexemeAtLeastOne,
-  parseSequence,
+  alternation,
+  constant,
+  atLeastOne,
+  property,
+  object,
+  characterRange,
+  lexeme,
+  lexemeAtLeastOne,
+  sequence,
   notPredicate,
-  parseSequenceCustom,
+  sequenceCustom,
   andPredicate,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
@@ -25,10 +25,10 @@ class Parser extends AbstractParser {
 }
 
 describe('operator', () => {
-  describe('parseAlternation', () => {
-    const parseConstantsAlternation = parseAlternation(
-      parseConstant('oh'),
-      parseConstant('cat'),
+  describe('alternation', () => {
+    const parseConstantsAlternation = alternation(
+      constant('oh'),
+      constant('cat'),
     )
 
     it('parses first alternation match', () => {
@@ -44,9 +44,9 @@ describe('operator', () => {
     })
   })
 
-  describe('parseAtLeastOne', () => {
-    const parseAtLeastOneConstantsAlternation = parseAtLeastOne(
-      parseAlternation(parseConstant('oh'), parseConstant('cat')),
+  describe('atLeastOne', () => {
+    const parseAtLeastOneConstantsAlternation = atLeastOne(
+      alternation(constant('oh'), constant('cat')),
     )
 
     it('parses many matches', () => {
@@ -70,11 +70,8 @@ describe('operator', () => {
 
     describe('rewinds the parser index after partial match of second repetition', () => {
       it('by parsing "ab cz" with ([a-f]^[a-f])+ as ["ab"] and leaving parser at whitespace', () => {
-        const parseAtLeastOneLexeme = parseAtLeastOne(
-          parseLexeme(
-            parseCharacterRange('a', 'f'),
-            parseCharacterRange('a', 'f'),
-          ),
+        const parseAtLeastOneLexeme = atLeastOne(
+          lexeme(characterRange('a', 'f'), characterRange('a', 'f')),
         )
 
         const p = new Parser('ab cz')
@@ -85,9 +82,9 @@ describe('operator', () => {
     })
   })
 
-  const parseAtoZ = parseCharacterRange('a', 'z')
+  const parseAtoZ = characterRange('a', 'z')
 
-  describe('parseCharacterRange', () => {
+  describe('characterRange', () => {
     it('parses f using [a-z] and advances stream', () => {
       const p = new Parser('fh')
       expect(parseAtoZ(p)).toEqual('f')
@@ -101,8 +98,8 @@ describe('operator', () => {
     })
   })
 
-  describe('parseLexeme', () => {
-    const parseAtoZTwiceLexeme = parseLexeme(parseAtoZ, parseAtoZ)
+  describe('lexeme', () => {
+    const parseAtoZTwiceLexeme = lexeme(parseAtoZ, parseAtoZ)
 
     it('parses cat using [a-z]^[a-z] and advances stream', () => {
       const p = new Parser('cat')
@@ -117,12 +114,9 @@ describe('operator', () => {
     })
   })
 
-  describe('parseLexemeAtLeastOne', () => {
-    const parseMultipleRanges = parseLexemeAtLeastOne(
-      parseAlternation(
-        parseCharacterRange('a', 'd'),
-        parseCharacterRange('m', 'z'),
-      ),
+  describe('lexemeAtLeastOne', () => {
+    const parseMultipleRanges = lexemeAtLeastOne(
+      alternation(characterRange('a', 'd'), characterRange('m', 'z')),
     )
 
     it('parses addat using [a-dm-z]^+ as adda and advances stream up to t', () => {
@@ -132,8 +126,8 @@ describe('operator', () => {
     })
   })
 
-  describe('parseProperty', () => {
-    const parseConstantToProperty = parseProperty('value', parseConstant('oh'))
+  describe('property', () => {
+    const parseConstantToProperty = property('value', constant('oh'))
 
     it('parses match into property', () => {
       const p = new Parser('oh')
@@ -147,20 +141,20 @@ describe('operator', () => {
       const p = new Parser('oh')
 
       const result = { value: '' }
-      const alternation = parseAlternation(
+      const alternationWithProp = alternation(
         parseConstantToProperty,
-        parseConstant('cat'),
+        constant('cat'),
       )
-      const value = alternation(p, result)
+      const value = alternationWithProp(p, result)
       expect(value).toEqual('oh')
       expect(result).toEqual({ value: 'oh' })
     })
   })
 
-  describe('parseObject', () => {
-    const parseConstantToObjectProperty = parseObject(
+  describe('object', () => {
+    const parseConstantToObjectProperty = object(
       () => ({ value: '' }),
-      parseProperty('value', parseConstant('oh')),
+      property('value', constant('oh')),
     )
 
     it('parses match into object property', () => {
@@ -170,15 +164,12 @@ describe('operator', () => {
     })
   })
 
-  describe('parseSequence', () => {
-    const parseOhThenCat = parseSequence(
-      parseConstant('oh'),
-      parseConstant('cat'),
-    )
+  describe('sequence', () => {
+    const parseOhThenCat = sequence(constant('oh'), constant('cat'))
 
-    const parseOhNotFollowedByCat = parseSequenceCustom<string>()(
-      parseConstant('oh'),
-      notPredicate(parseConstant('cat')),
+    const parseOhNotFollowedByCat = sequenceCustom<string>()(
+      constant('oh'),
+      notPredicate(constant('cat')),
     )
 
     it('parses "oh cat" using ("oh" "cat") as ["oh", "cat"]', () => {
@@ -208,7 +199,7 @@ describe('operator', () => {
   })
 
   describe('andPredicate', () => {
-    const aToFPredicate = andPredicate(parseCharacterRange('a', 'f'))
+    const aToFPredicate = andPredicate(characterRange('a', 'f'))
 
     it('parses "c" with &[a-f] as true and does not advance parser', () => {
       const p = new Parser('c')
@@ -224,7 +215,7 @@ describe('operator', () => {
   })
 
   describe('notPredicate', () => {
-    const notAtoFPredicate = notPredicate(parseCharacterRange('a', 'f'))
+    const notAtoFPredicate = notPredicate(characterRange('a', 'f'))
 
     it('parses "z" with &![a-f] as true and does not advance parser', () => {
       const p = new Parser('z')

@@ -4,9 +4,7 @@ type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
 type ParserOp<T> = (p: Parser, obj?: any) => T | undefined
 
-export const parseConstant = (value: string) => (
-  p: Parser,
-): string | undefined => {
+export const constant = (value: string) => (p: Parser): string | undefined => {
   if (p.data.slice(p.index, p.index + value.length) === value) {
     p.index += value.length
     return value
@@ -15,7 +13,7 @@ export const parseConstant = (value: string) => (
   }
 }
 
-export const parseAlternation = <T extends any[]>(...rules: T) => <O>(
+export const alternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
 ): ReturnTypeUnion<T> | undefined => {
@@ -31,7 +29,7 @@ export const parseAlternation = <T extends any[]>(...rules: T) => <O>(
   return undefined
 }
 
-export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
+export const atLeastOne = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
 ): T[] | undefined => {
@@ -51,7 +49,7 @@ export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   return ast.length ? ast : undefined
 }
 
-export const parseCharacterRange = (from: string, to: string) => (
+export const characterRange = (from: string, to: string) => (
   p: Parser,
 ): string | undefined => {
   const { next } = p
@@ -63,7 +61,7 @@ export const parseCharacterRange = (from: string, to: string) => (
   }
 }
 
-export const parseLexeme = <T extends any[]>(...rules: T) => <O>(
+export const lexeme = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
 ): string | undefined => {
@@ -76,7 +74,7 @@ export const parseLexeme = <T extends any[]>(...rules: T) => <O>(
   return p.data.slice(start, p.index)
 }
 
-export const parseLexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
+export const lexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
 ): string | undefined => {
@@ -85,7 +83,7 @@ export const parseLexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   return p.index === startIndex ? undefined : p.data.slice(startIndex, p.index)
 }
 
-export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
+export const property = <T>(propName: string, rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
 ): T | undefined => {
@@ -97,7 +95,7 @@ export const parseProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
   return result
 }
 
-export const parseObject = <T, O>(factory: () => O, rule: ParserOp<T>) => (
+export const object = <T, O>(factory: () => O, rule: ParserOp<T>) => (
   p: Parser,
 ): O | undefined => {
   const obj = factory()
@@ -119,9 +117,7 @@ type SequenceReturnTypes<T extends any[]> = {
  * needed. The extra function is needed due to TypeScript's all-or-nothing
  * inference of generics.
  */
-export const parseSequenceCustom = <R>() => <T extends any[]>(...rules: T) => <
-  O
->(
+export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
 ): R | undefined => {
@@ -142,8 +138,8 @@ export const parseSequenceCustom = <R>() => <T extends any[]>(...rules: T) => <
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const parseSequence = <T extends any[]>(...rules: T) =>
-  parseSequenceCustom<SequenceReturnTypes<T>>()(...rules)
+export const sequence = <T extends any[]>(...rules: T) =>
+  sequenceCustom<SequenceReturnTypes<T>>()(...rules)
 
 export const andPredicate = <T>(rule: ParserOp<T>) => (
   p: Parser,

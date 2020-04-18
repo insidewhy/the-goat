@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import { Parser, Ast } from './parser'
 import {
-  parseAlternation,
-  parseAtLeastOne,
-  parseConstant,
-  parseObject,
-  parseProperty,
-  parseLexeme,
-  parseCharacterRange,
-  parseLexemeAtLeastOne,
-  parseSequence,
+  alternation,
+  atLeastOne,
+  constant,
+  object,
+  property,
+  lexeme,
+  characterRange,
+  lexemeAtLeastOne,
+  sequence,
   notPredicate,
-  parseSequenceCustom,
+  sequenceCustom,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -175,54 +175,51 @@ export interface TreeOption extends Ast<'TreeOption'> {
 
 const makeRuleName = (): RuleName => ({ type: 'RuleName' } as RuleName)
 
-export const parseRuleName = parseObject(
+export const parseRuleName = object(
   makeRuleName,
-  parseProperty(
+  property(
     'value',
-    parseLexeme(
-      parseCharacterRange('A', 'Z'),
-      parseLexemeAtLeastOne(
-        parseAlternation(
-          parseCharacterRange('a', 'z'),
-          parseCharacterRange('A', 'Z'),
-          parseConstant('_'),
+    lexeme(
+      characterRange('A', 'Z'),
+      lexemeAtLeastOne(
+        alternation(
+          characterRange('a', 'z'),
+          characterRange('A', 'Z'),
+          constant('_'),
         ),
       ),
     ),
   ),
 )
 
-export const parsePropertyName = parseLexeme(
-  parseAlternation(parseCharacterRange('a', 'z'), parseConstant('_')),
-  parseLexemeAtLeastOne(
-    parseAlternation(
-      parseCharacterRange('a', 'z'),
-      parseCharacterRange('A', 'Z'),
-      parseConstant('_'),
+export const parsePropertyName = lexeme(
+  alternation(characterRange('a', 'z'), constant('_')),
+  lexemeAtLeastOne(
+    alternation(
+      characterRange('a', 'z'),
+      characterRange('A', 'Z'),
+      constant('_'),
     ),
   ),
 )
 
 const makeGroup = (): Group => ({ type: 'Group' } as Group)
 
-export const parseGroup = parseObject(
+export const parseGroup = object(
   makeGroup,
-  parseSequence(
-    parseConstant('('),
+  sequence(
+    constant('('),
     // must use forwarding function due to cyclic dependency between group and expression
-    parseProperty('expression', (p: Parser): Expression | undefined =>
+    property('expression', (p: Parser): Expression | undefined =>
       parseExpression(p),
     ),
-    parseConstant(')'),
+    constant(')'),
   ),
 )
 
-export const parseExpressionLeaf = parseAlternation(
+export const parseExpressionLeaf = alternation(
   parseGroup,
-  parseSequenceCustom<RuleName>()(
-    parseRuleName,
-    notPredicate(parseConstant('<')),
-  ),
+  sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
 )
 
 // TODO: expression should parse more things
@@ -230,13 +227,13 @@ export const parseExpression = parseExpressionLeaf
 
 const makeRule = (): Rule => ({ type: 'Rule' } as Rule)
 
-export const parseRule = parseObject(
+export const parseRule = object(
   makeRule,
-  parseSequence(
-    parseProperty('name', parseRuleName),
-    parseConstant('<-'),
-    parseProperty('expression', parseExpression),
+  sequence(
+    property('name', parseRuleName),
+    constant('<-'),
+    property('expression', parseExpression),
   ),
 )
 
-const parseGrammar = parseAtLeastOne(parseAlternation(parseRule, parseTreeRule))
+const parseGrammar = atLeastOne(alternation(parseRule, parseTreeRule))
