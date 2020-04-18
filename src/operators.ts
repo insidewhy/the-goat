@@ -36,11 +36,12 @@ export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   obj?: O,
 ): T[] | undefined => {
   const ast: T[] = []
+  let backupIndex = p.index
   while (p.hasData()) {
-    const backupIndex = p.index
     const ruleAst = rule(p, obj)
     if (ruleAst) {
       ast.push(ruleAst)
+      backupIndex = p.index
       p.skipSpacing()
     } else {
       p.restoreIndex(backupIndex)

@@ -67,6 +67,22 @@ describe('operator', () => {
       expect(value).toEqual(undefined)
       expect(p.index).toEqual(0)
     })
+
+    describe('rewinds the parser index after partial match of second repetition', () => {
+      it('by parsing "ab cz" with ([a-f]^[a-f])+ as ["ab"] and leaving parser at whitespace', () => {
+        const parseAtLeastOneLexeme = parseAtLeastOne(
+          parseLexeme(
+            parseCharacterRange('a', 'f'),
+            parseCharacterRange('a', 'f'),
+          ),
+        )
+
+        const p = new Parser('ab cz')
+        const value = parseAtLeastOneLexeme(p)
+        expect(value).toEqual(['ab'])
+        expect(p.next).toEqual(' ')
+      })
+    })
   })
 
   const parseAtoZ = parseCharacterRange('a', 'z')
