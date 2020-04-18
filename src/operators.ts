@@ -1,4 +1,5 @@
 import { Parser } from './parser'
+// import { FilterBooleans } from './filterBooleans'
 
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
@@ -112,10 +113,11 @@ type SequenceReturnTypes<T extends any[]> = {
 }
 
 /**
- * Same as parseSequence but when a custom return type is needed.  TypeScript
- * won't allow filtering a type out of a tuple type otherwise this wouldn't be
- * needed. The extra function is needed due to TypeScript's all-or-nothing
- * inference of generics.
+ * Same as parseSequence but when a custom return type is needed. We can filter
+ * the booleans from the tuple, but doing so uses a lot of CPU due since typescript
+ * doesn't have a sensible way to filter tuples.
+ * See https://github.com/insidewhy/the-goat/commit/1caab09191b49586727d65da918e471e4687cc24
+ * for the implementation, wish it could be used.
  */
 export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
   p: Parser,
@@ -139,6 +141,8 @@ export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const sequence = <T extends any[]>(...rules: T) =>
+  // see comment above :(
+  // sequenceCustom<FilterBooleans<SequenceReturnTypes<T>>>()(...rules)
   sequenceCustom<SequenceReturnTypes<T>>()(...rules)
 
 export const andPredicate = <T>(rule: ParserOp<T>) => (
