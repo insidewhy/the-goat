@@ -8,6 +8,9 @@ import {
   parseLexeme,
   parseLexemeAtLeastOne,
   parseSequence,
+  notPredicate,
+  parseSequenceCustom,
+  andPredicate,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -157,6 +160,11 @@ describe('operator', () => {
       parseConstant('cat'),
     )
 
+    const parseOhNotFollowedByCat = parseSequenceCustom<string>()(
+      parseConstant('oh'),
+      notPredicate(parseConstant('cat')),
+    )
+
     it('parses "oh cat" using ("oh" "cat") as ["oh", "cat"]', () => {
       const p = new Parser('oh catb')
       expect(parseOhThenCat(p)).toEqual(['oh', 'cat'])
@@ -166,8 +174,52 @@ describe('operator', () => {
     it('parses "oh bat" using ("oh" "cat") as undefined', () => {
       const p = new Parser('oh bat')
       expect(parseOhThenCat(p)).toEqual(undefined)
-      // the string is not reset, this is left to the alternation above
+      // the string is not reset, this is left to the alternation/repetition above
       expect(p.next).toEqual('b')
+    })
+
+    it('parses "oh bat" using ("oh" &!"cat") as "oh"', () => {
+      const p = new Parser('oh bat')
+      expect(parseOhNotFollowedByCat(p)).toEqual('oh')
+      expect(p.next).toEqual('b')
+    })
+
+    it('parses "oh cat" using ("oh" &!"cat") as undefined', () => {
+      const p = new Parser('oh cat')
+      expect(parseOhNotFollowedByCat(p)).toEqual(undefined)
+      expect(p.next).toEqual('c')
+    })
+  })
+
+  describe('andPredicate', () => {
+    const aToFPredicate = andPredicate(parseCharacterRange('a', 'f'))
+
+    it('parses "c" with &[a-f] as true and does not advance parser', () => {
+      const p = new Parser('c')
+      expect(aToFPredicate(p)).toEqual(true)
+      expect(p.next).toEqual('c')
+    })
+
+    it('parses "z" with &[a-f] as false', () => {
+      const p = new Parser('z')
+      expect(aToFPredicate(p)).toEqual(false)
+      expect(p.next).toEqual('z')
+    })
+  })
+
+  describe('notPredicate', () => {
+    const notAtoFPredicate = notPredicate(parseCharacterRange('a', 'f'))
+
+    it('parses "z" with &![a-f] as true and does not advance parser', () => {
+      const p = new Parser('z')
+      expect(notAtoFPredicate(p)).toEqual(true)
+      expect(p.next).toEqual('z')
+    })
+
+    it('parses "c" with &![a-f] as false', () => {
+      const p = new Parser('c')
+      expect(notAtoFPredicate(p)).toEqual(false)
+      expect(p.next).toEqual('c')
     })
   })
 })

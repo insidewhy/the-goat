@@ -37,11 +37,13 @@ export const parseAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
 ): T[] | undefined => {
   const ast: T[] = []
   while (p.hasData()) {
+    const backupIndex = p.index
     const ruleAst = rule(p, obj)
     if (ruleAst) {
       ast.push(ruleAst)
       p.skipSpacing()
     } else {
+      p.restoreIndex(backupIndex)
       break
     }
   }
@@ -110,18 +112,52 @@ type SequenceReturnTypes<T extends any[]> = {
   [K in keyof T]: SequenceReturnType<T[K]>
 }
 
-export const parseSequence = <T extends any[]>(...rules: T) => <O>(
+/**
+ * Same as parseSequence but when a custom return type is needed.  TypeScript
+ * won't allow filtering a type out of a tuple type otherwise this wouldn't be
+ * needed. The extra function is needed due to TypeScript's all-or-nothing
+ * inference of generics.
+ */
+export const parseSequenceCustom = <R>() => <T extends any[]>(...rules: T) => <
+  O
+>(
   p: Parser,
   obj?: O,
-): SequenceReturnTypes<T> | undefined => {
+): R | undefined => {
   const ret: any[] = []
   for (const rule of rules) {
     const ruleValue = rule(p, obj)
     if (!ruleValue) {
       return undefined
     }
-    ret.push(ruleValue)
+
+    if (typeof ruleValue !== 'boolean') {
+      // don't store predicates
+      ret.push(ruleValue)
+    }
     p.skipSpacing()
   }
-  return (ret as unknown) as SequenceReturnTypes<T>
+  return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const parseSequence = <T extends any[]>(...rules: T) =>
+  parseSequenceCustom<SequenceReturnTypes<T>>()(...rules)
+
+export const andPredicate = <T>(rule: ParserOp<T>) => (
+  p: Parser,
+): boolean | undefined => {
+  const { index } = p
+  const result = rule(p)
+  p.restoreIndex(index)
+  return !!result
+}
+
+export const notPredicate = <T>(rule: ParserOp<T>) => (
+  p: Parser,
+): boolean | undefined => {
+  const { index } = p
+  const result = rule(p)
+  p.restoreIndex(index)
+  return !result
 }

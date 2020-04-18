@@ -10,6 +10,8 @@ import {
   parseCharacterRange,
   parseLexemeAtLeastOne,
   parseSequence,
+  notPredicate,
+  parseSequenceCustom,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -217,8 +219,10 @@ export const parseGroup = parseObject(
 
 export const parseExpressionLeaf = parseAlternation(
   parseGroup,
-  // TODO: parseSequence(parseRuleName, parseNotPredicate(parseConstant("<-")),
-  parseRuleName,
+  parseSequenceCustom<RuleName>()(
+    parseRuleName,
+    notPredicate(parseConstant('<')),
+  ),
 )
 
 // TODO: expression should parse more things

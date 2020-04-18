@@ -4,6 +4,7 @@ import {
   parsePropertyName,
   parseRule,
   parseGroup,
+  parseExpressionLeaf,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -71,6 +72,25 @@ describe('tbpegByHand', () => {
           value: 'Name',
         },
       })
+    })
+  })
+
+  describe('parseExpressionLeaf', () => {
+    it('matches RuleName', () => {
+      const p = new Parser('RuleName')
+      const result = parseExpressionLeaf(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'RuleName',
+      })
+    })
+
+    it('does not match "RuleName <-" due to not-predicate in sequence', () => {
+      const p = new Parser('RuleName <-')
+      const result = parseExpressionLeaf(p)
+      expect(result).toEqual(undefined)
+      // rewound to beginning by alternation
+      expect(p.next).toEqual('R')
     })
   })
 })

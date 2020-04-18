@@ -26,8 +26,8 @@ Repetition <= expression:$next repetition:$enum(
   "^+" $as LexemeOneOrMore /
   "^*" $as LexemeZeroOrMore /
 )|?
-Predicate <=
-  $enum("&!" $as AndNotPredicate / "!" $as NotPredicate / "&" $as AndPredicate)|? $next
+# TODO: this should only be allowed in a sequence?
+Predicate <= $enum("&!" $as NotPredicate / "&" $as AndPredicate)|? $next
 ExpressionLeaf <-
   Group /
   (RuleName &!"<") /
