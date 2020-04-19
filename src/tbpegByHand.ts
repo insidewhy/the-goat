@@ -12,6 +12,8 @@ import {
   sequence,
   notPredicate,
   sequenceCustom,
+  treeJoin,
+  appendProperty,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -222,8 +224,14 @@ export const parseExpressionLeaf = alternation(
   sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
 )
 
-// TODO: expression should parse more things
-export const parseExpression = parseExpressionLeaf
+export const parseAlternation = treeJoin(
+  (): Alternation => ({ type: 'Alternation', expressions: [] } as Alternation),
+  // TODO: should be parseSequence
+  appendProperty('expressions', parseExpressionLeaf),
+  constant('/'),
+)
+
+export const parseExpression = parseAlternation
 
 const makeRule = (): Rule => ({ type: 'Rule' } as Rule)
 

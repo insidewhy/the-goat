@@ -175,10 +175,10 @@ export const notPredicate = <T>(rule: ParserOp<T>) => (
   return !result
 }
 
-const joinHelper = <A extends boolean, T>(
+const joinHelper = <A extends boolean, T, U>(
   atLeastOne: A,
   rule: ParserOp<T>,
-  joinRule: ParserOp<T>,
+  joinRule: ParserOp<U>,
 ) => <O>(
   p: Parser,
   obj?: O,
@@ -217,18 +217,18 @@ const joinHelper = <A extends boolean, T>(
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const join = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) =>
+export const join = <T, U>(rule: ParserOp<T>, joinRule: ParserOp<U>) =>
   joinHelper(false, rule, joinRule)
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const joinMany = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) =>
+export const joinMany = <T, U>(rule: ParserOp<T>, joinRule: ParserOp<U>) =>
   joinHelper(true, rule, joinRule)
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export const treeJoin = <T, O>(
+export const treeJoin = <T, U, O>(
   makeObject: () => O,
   rule: ParserOp<T>,
-  joinRule: ParserOp<T>,
+  joinRule: ParserOp<U>,
 ) => {
   const parseJoin = joinMany(rule, joinRule)
 

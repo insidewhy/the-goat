@@ -5,6 +5,7 @@ import {
   parseRule,
   parseGroup,
   parseExpressionLeaf,
+  parseAlternation,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -71,6 +72,29 @@ describe('tbpegByHand', () => {
           type: 'RuleName',
           value: 'Name',
         },
+      })
+    })
+  })
+
+  describe('parseAlternation', () => {
+    it('matches RuleName', () => {
+      const p = new Parser('RuleName')
+      const result = parseAlternation(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'RuleName',
+      })
+    })
+
+    it('matches Rule / OtherRule, storing Alternation object', () => {
+      const p = new Parser('Rule / OtherRule')
+      const result = parseAlternation(p)
+      expect(result).toEqual({
+        type: 'Alternation',
+        expressions: [
+          { type: 'RuleName', value: 'Rule' },
+          { type: 'RuleName', value: 'OtherRule' },
+        ],
       })
     })
   })
