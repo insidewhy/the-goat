@@ -11,6 +11,7 @@ import {
   notPredicate,
   sequenceCustom,
   andPredicate,
+  join,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -227,6 +228,33 @@ describe('operator', () => {
       const p = new Parser('c')
       expect(notAtoFPredicate(p)).toEqual(false)
       expect(p.next).toEqual('c')
+    })
+  })
+
+  describe('parseJoin', () => {
+    describe('with [a-z] % ","', () => {
+      const commaSeparatedStrings = join(
+        characterRange('a', 'z'),
+        constant(','),
+      )
+
+      it('parses "a , d" as ["a", "d"]', () => {
+        const p = new Parser('a, d:')
+        expect(commaSeparatedStrings(p)).toEqual(['a', 'd'])
+        expect(p.next).toEqual(':')
+      })
+
+      it('parses "b,d" as ["b", "d"]', () => {
+        const p = new Parser('b,d')
+        expect(commaSeparatedStrings(p)).toEqual(['b', 'd'])
+        expect(p.atEof).toBeTruthy()
+      })
+
+      it('parses ":" as []', () => {
+        const p = new Parser(':')
+        expect(commaSeparatedStrings(p)).toEqual([])
+        expect(p.next).toEqual(':')
+      })
     })
   })
 })

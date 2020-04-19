@@ -162,3 +162,37 @@ export const notPredicate = <T>(rule: ParserOp<T>) => (
   p.restoreIndex(index)
   return !result
 }
+
+export const join = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) => <O>(
+  p: Parser,
+  obj?: O,
+): Array<WithoutUndefined<ReturnType<ParserOp<T>>>> => {
+  const values: Array<WithoutUndefined<ReturnType<ParserOp<T>>>> = []
+  const firstValue = rule(p, obj)
+  if (!firstValue) {
+    return []
+  }
+
+  // typescript shouldn't need this cast, it can see the `if` above?
+  values.push(firstValue as WithoutUndefined<T>)
+
+  while (!p.atEof()) {
+    const beforeJoinIndex = p.index
+    p.skipSpacing()
+    if (!joinRule(p)) {
+      p.restoreIndex(beforeJoinIndex)
+      break
+    }
+
+    p.skipSpacing()
+    const nextValue = rule(p, obj)
+    if (!nextValue) {
+      p.restoreIndex(beforeJoinIndex)
+      break
+    }
+
+    values.push(nextValue as WithoutUndefined<T>)
+  }
+
+  return values
+}
