@@ -235,6 +235,8 @@ export const treeJoin = <T, U, O>(
   return (
     p: Parser,
   ): WithoutUndefined<ReturnType<ParserOp<T>>> | O | undefined => {
+    // TODO: reuse a cached object until a successful object parse, but to do that a way
+    // to reset the object state is needed
     const obj = makeObject()
     const values = parseJoin(p, obj)
     if (!values) {
