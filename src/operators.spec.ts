@@ -12,6 +12,7 @@ import {
   sequenceCustom,
   andPredicate,
   join,
+  joinMany,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -231,7 +232,7 @@ describe('operator', () => {
     })
   })
 
-  describe('parseJoin', () => {
+  describe('join', () => {
     describe('with [a-z] % ","', () => {
       const commaSeparatedStrings = join(
         characterRange('a', 'z'),
@@ -253,6 +254,27 @@ describe('operator', () => {
       it('parses ":" as []', () => {
         const p = new Parser(':')
         expect(commaSeparatedStrings(p)).toEqual([])
+        expect(p.next).toEqual(':')
+      })
+    })
+  })
+
+  describe('joinMany', () => {
+    describe('with [a-z] %+ ","', () => {
+      const commaSeparatedStrings = joinMany(
+        characterRange('a', 'z'),
+        constant(','),
+      )
+
+      it('parses "a" as ["a"]', () => {
+        const p = new Parser('a:')
+        expect(commaSeparatedStrings(p)).toEqual(['a'])
+        expect(p.next).toEqual(':')
+      })
+
+      it('parses ":" as undefined', () => {
+        const p = new Parser(':')
+        expect(commaSeparatedStrings(p)).toEqual(undefined)
         expect(p.next).toEqual(':')
       })
     })

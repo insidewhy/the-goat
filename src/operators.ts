@@ -163,17 +163,24 @@ export const notPredicate = <T>(rule: ParserOp<T>) => (
   return !result
 }
 
-export const join = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) => <O>(
+const joinHelper = <A extends boolean, T>(
+  atLeastOne: A,
+  rule: ParserOp<T>,
+  joinRule: ParserOp<T>,
+) => <O>(
   p: Parser,
   obj?: O,
-): Array<WithoutUndefined<ReturnType<ParserOp<T>>>> => {
+):
+  | (A extends true ? undefined : never)
+  | Array<WithoutUndefined<ReturnType<ParserOp<T>>>> => {
   const values: Array<WithoutUndefined<ReturnType<ParserOp<T>>>> = []
   const firstValue = rule(p, obj)
   if (!firstValue) {
-    return []
+    // typescript doesn't understand atLeastOne is bound by A
+    return atLeastOne ? (undefined as any) : []
   }
 
-  // typescript shouldn't need this cast, it can see the `if` above?
+  // typescript shouldn't need this cast, it already knows firstValue is T
   values.push(firstValue as WithoutUndefined<T>)
 
   while (!p.atEof()) {
@@ -196,3 +203,11 @@ export const join = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) => <O>(
 
   return values
 }
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const join = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) =>
+  joinHelper(false, rule, joinRule)
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const joinMany = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) =>
+  joinHelper(true, rule, joinRule)
