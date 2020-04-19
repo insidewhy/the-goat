@@ -96,6 +96,18 @@ export const property = <T>(propName: string, rule: ParserOp<T>) => <O>(
   return result
 }
 
+export const appendProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
+  p: Parser,
+  obj?: O,
+): T | undefined => {
+  const result = rule(p, obj)
+  if (!result) {
+    return undefined
+  }
+  ;(obj as any)[propName].push(result)
+  return result
+}
+
 export const object = <T, O>(factory: () => O, rule: ParserOp<T>) => (
   p: Parser,
 ): O | undefined => {
@@ -211,3 +223,24 @@ export const join = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) =>
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const joinMany = <T>(rule: ParserOp<T>, joinRule: ParserOp<T>) =>
   joinHelper(true, rule, joinRule)
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const treeJoin = <T, O>(
+  makeObject: () => O,
+  rule: ParserOp<T>,
+  joinRule: ParserOp<T>,
+) => {
+  const parseJoin = joinMany(rule, joinRule)
+
+  return (
+    p: Parser,
+  ): WithoutUndefined<ReturnType<ParserOp<T>>> | O | undefined => {
+    const obj = makeObject()
+    const values = parseJoin(p, obj)
+    if (!values) {
+      return undefined
+    } else {
+      return values.length > 1 ? obj : values[0]
+    }
+  }
+}
