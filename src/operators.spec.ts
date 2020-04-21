@@ -15,6 +15,7 @@ import {
   joinMany,
   treeJoin,
   appendProperty,
+  zeroOrMore,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -88,6 +89,26 @@ describe('operator', () => {
           expect(value).toEqual(['ab'])
           expect(p.next).toEqual(' ')
         })
+      })
+    })
+  })
+
+  describe('zeroOrMore', () => {
+    describe('"oh"*', () => {
+      const parseOhsUsually = zeroOrMore(constant('oh'))
+
+      it('returns empty array when no matches are found', () => {
+        const p = new Parser('whatever')
+        const value = parseOhsUsually(p)
+        expect(value).toEqual([])
+        expect(p.next).toEqual('w')
+      })
+
+      it('returns ["oh", "oh", "oh"] for "oh     ohoh:"', () => {
+        const p = new Parser('oh     ohoh:')
+        const value = parseOhsUsually(p)
+        expect(value).toEqual(['oh', 'oh', 'oh'])
+        expect(p.next).toEqual(':')
       })
     })
   })

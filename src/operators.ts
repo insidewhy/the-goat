@@ -30,10 +30,10 @@ export const alternation = <T extends any[]>(...rules: T) => <O>(
   return undefined
 }
 
-export const atLeastOne = <T>(rule: ParserOp<T>) => <O>(
+export const zeroOrMore = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
-): T[] | undefined => {
+): T[] => {
   const ast: T[] = []
   let backupIndex = p.index
   while (p.hasData()) {
@@ -47,7 +47,16 @@ export const atLeastOne = <T>(rule: ParserOp<T>) => <O>(
       break
     }
   }
-  return ast.length ? ast : undefined
+  return ast
+}
+
+export const atLeastOne = <T>(rule: ParserOp<T>) => {
+  const parseZeroOrMore = zeroOrMore(rule)
+
+  return <O>(p: Parser, obj?: O): T[] | undefined => {
+    const result = parseZeroOrMore(p, obj)
+    return result.length > 0 ? result : undefined
+  }
 }
 
 export const characterRange = (from: string, to: string) => (
@@ -176,7 +185,7 @@ export const notPredicate = <T>(rule: ParserOp<T>) => (
 }
 
 const joinHelper = <A extends boolean, T, U>(
-  atLeastOne: A,
+  requireOne: A,
   rule: ParserOp<T>,
   joinRule: ParserOp<U>,
 ) => <O>(
@@ -188,8 +197,8 @@ const joinHelper = <A extends boolean, T, U>(
   const values: Array<WithoutUndefined<ReturnType<ParserOp<T>>>> = []
   const firstValue = rule(p, obj)
   if (!firstValue) {
-    // typescript doesn't understand atLeastOne is bound by A
-    return atLeastOne ? (undefined as any) : []
+    // typescript doesn't understand requireOne is bound by A
+    return requireOne ? (undefined as any) : []
   }
 
   // typescript shouldn't need this cast, it already knows firstValue is T
