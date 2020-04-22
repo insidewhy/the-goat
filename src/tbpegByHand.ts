@@ -14,6 +14,7 @@ import {
   sequenceCustom,
   treeJoin,
   appendProperty,
+  treeRepetition,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -187,6 +188,7 @@ export const parseRuleName = object(
         alternation(
           characterRange('a', 'z'),
           characterRange('A', 'Z'),
+          characterRange('0', '9'),
           constant('_'),
         ),
       ),
@@ -200,6 +202,7 @@ export const parsePropertyName = lexeme(
     alternation(
       characterRange('a', 'z'),
       characterRange('A', 'Z'),
+      characterRange('0', '9'),
       constant('_'),
     ),
   ),
@@ -224,10 +227,15 @@ export const parseExpressionLeaf = alternation(
   sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
 )
 
+export const parseSequence = treeRepetition(
+  (): Sequence => ({ type: 'Sequence', expressions: [] } as Sequence),
+  // TODO: should be parseAssignment
+  appendProperty('expressions', parseExpressionLeaf),
+)
+
 export const parseAlternation = treeJoin(
   (): Alternation => ({ type: 'Alternation', expressions: [] } as Alternation),
-  // TODO: should be parseSequence
-  appendProperty('expressions', parseExpressionLeaf),
+  appendProperty('expressions', parseSequence),
   constant('/'),
 )
 

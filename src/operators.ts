@@ -50,6 +50,7 @@ export const zeroOrMore = <T>(rule: ParserOp<T>) => <O>(
   return ast
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const atLeastOne = <T>(rule: ParserOp<T>) => {
   const parseZeroOrMore = zeroOrMore(rule)
 
@@ -248,6 +249,24 @@ export const treeJoin = <T, U, O>(
     // to reset the object state is needed
     const obj = makeObject()
     const values = parseJoin(p, obj)
+    if (!values) {
+      return undefined
+    } else {
+      return values.length > 1 ? obj : values[0]
+    }
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const treeRepetition = <T, O>(
+  makeObject: () => O,
+  rule: ParserOp<T>,
+) => {
+  const parseAtLeastOne = atLeastOne(rule)
+
+  return (p: Parser): T | O | undefined => {
+    const obj = makeObject()
+    const values = parseAtLeastOne(p, obj)
     if (!values) {
       return undefined
     } else {

@@ -16,6 +16,7 @@ import {
   treeJoin,
   appendProperty,
   zeroOrMore,
+  treeRepetition,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -351,6 +352,27 @@ describe('operator', () => {
         const p = new Parser('a,b, c:')
         expect(simpleTree(p)).toEqual({ values: ['a', 'b', 'c'] })
         expect(p.next).toEqual(':')
+      })
+    })
+  })
+
+  describe('treeRepetition', () => {
+    describe('values:[a-z] |+', () => {
+      const simpleTree = treeRepetition(
+        () => ({ values: [] }),
+        appendProperty('values', characterRange('a', 'z')),
+      )
+
+      it('parses "a" as "a"', () => {
+        const p = new Parser('a:')
+        expect(simpleTree(p)).toEqual('a')
+        expect(p.next).toEqual(':')
+      })
+
+      it('parses "a b" as "{ values: ["a", "b"] }', () => {
+        const p = new Parser('a b')
+        expect(simpleTree(p)).toEqual({ values: ['a', 'b'] })
+        expect(p.atEof).toBeTruthy()
       })
     })
   })

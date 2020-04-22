@@ -6,6 +6,7 @@ import {
   parseGroup,
   parseExpressionLeaf,
   parseAlternation,
+  parseSequence,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -77,7 +78,7 @@ describe('tbpegByHand', () => {
   })
 
   describe('parseAlternation', () => {
-    it('matches RuleName', () => {
+    it('matches RuleName and stores RuleName object', () => {
       const p = new Parser('RuleName')
       const result = parseAlternation(p)
       expect(result).toEqual({
@@ -94,6 +95,47 @@ describe('tbpegByHand', () => {
         expressions: [
           { type: 'RuleName', value: 'Rule' },
           { type: 'RuleName', value: 'OtherRule' },
+        ],
+      })
+    })
+
+    it('matches Seq1 Seq2 / OtherRule, storing Alternation object with nested Sequence', () => {
+      const p = new Parser('Seq1 Seq2 / OtherRule')
+      const result = parseAlternation(p)
+      expect(result).toEqual({
+        type: 'Alternation',
+        expressions: [
+          {
+            type: 'Sequence',
+            expressions: [
+              { type: 'RuleName', value: 'Seq1' },
+              { type: 'RuleName', value: 'Seq2' },
+            ],
+          },
+          { type: 'RuleName', value: 'OtherRule' },
+        ],
+      })
+    })
+  })
+
+  describe('parseSequence', () => {
+    it('matches RuleName and stores RuleName object', () => {
+      const p = new Parser('RuleName')
+      const result = parseAlternation(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'RuleName',
+      })
+    })
+
+    it('matches Seq1 Seq2, storing Sequence object', () => {
+      const p = new Parser('Seq1 Seq2')
+      const result = parseSequence(p)
+      expect(result).toEqual({
+        type: 'Sequence',
+        expressions: [
+          { type: 'RuleName', value: 'Seq1' },
+          { type: 'RuleName', value: 'Seq2' },
         ],
       })
     })

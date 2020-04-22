@@ -3,8 +3,8 @@ Spacing <- \s^+
 Grammar <- (Rule / TreeRule)+
 
 # general
-RuleName <= value:([A-Z] ^ [a-zA-Z_]^+)
-PropertyName <- [a-z_] ^ [a-zA-Z_]^+
+RuleName <= value:([A-Z] ^ [a-zA-Z0-9_]^+)
+PropertyName <- [a-z_] ^ [a-zA-Z0-9_]^+
 
 # rules
 Rule <= name:RuleName "<-" expression:Expression
