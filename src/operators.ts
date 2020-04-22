@@ -38,7 +38,7 @@ export const zeroOrMore = <T>(rule: ParserOp<T>) => <O>(
   let backupIndex = p.index
   while (p.hasData()) {
     const ruleAst = rule(p, obj)
-    if (ruleAst) {
+    if (ruleAst !== undefined) {
       ast.push(ruleAst)
       backupIndex = p.index
       p.skipSpacing()
@@ -78,7 +78,7 @@ export const lexeme = <T extends any[]>(...rules: T) => <O>(
 ): string | undefined => {
   const start = p.index
   for (const rule of rules) {
-    if (!rule(p, obj)) {
+    if (rule(p, obj) === undefined) {
       return undefined
     }
   }
@@ -90,7 +90,7 @@ export const lexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   obj?: O,
 ): string | undefined => {
   const startIndex = p.index
-  while (p.hasData() && rule(p, obj)) {}
+  while (p.hasData() && rule(p, obj) !== undefined) {}
   return p.index === startIndex ? undefined : p.data.slice(startIndex, p.index)
 }
 
@@ -99,7 +99,7 @@ export const property = <T>(propName: string, rule: ParserOp<T>) => <O>(
   obj?: O,
 ): T | undefined => {
   const result = rule(p, obj)
-  if (!result) {
+  if (result === undefined) {
     return undefined
   }
   ;(obj as any)[propName] = result
@@ -111,7 +111,7 @@ export const appendProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
   obj?: O,
 ): T | undefined => {
   const result = rule(p, obj)
-  if (!result) {
+  if (result === undefined) {
     return undefined
   }
   ;(obj as any)[propName].push(result)
@@ -122,7 +122,7 @@ export const object = <T, O>(factory: () => O, rule: ParserOp<T>) => (
   p: Parser,
 ): O | undefined => {
   const obj = factory()
-  return rule(p, obj) ? obj : undefined
+  return rule(p, obj) === undefined ? undefined : obj
 }
 
 type WithoutUndefined<T> = T extends undefined ? never : T
@@ -153,14 +153,20 @@ export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
   const ret: any[] = []
   for (const rule of rules) {
     const ruleValue = rule(p, obj)
-    if (!ruleValue) {
-      return undefined
+    // predicate or mismatch
+    if (typeof ruleValue === 'boolean') {
+      if (ruleValue === false) {
+        return undefined
+      }
+      // don't store predicates
+    } else {
+      if (ruleValue === undefined) {
+        return undefined
+      } else {
+        ret.push(ruleValue)
+      }
     }
 
-    if (typeof ruleValue !== 'boolean') {
-      // don't store predicates
-      ret.push(ruleValue)
-    }
     p.skipSpacing()
   }
   return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
@@ -178,7 +184,7 @@ export const andPredicate = <T>(rule: ParserOp<T>) => (
   const { index } = p
   const result = rule(p)
   p.restoreIndex(index)
-  return !!result
+  return result !== undefined
 }
 
 export const notPredicate = <T>(rule: ParserOp<T>) => (
@@ -187,7 +193,7 @@ export const notPredicate = <T>(rule: ParserOp<T>) => (
   const { index } = p
   const result = rule(p)
   p.restoreIndex(index)
-  return !result
+  return result === undefined
 }
 
 const joinHelper = <A extends boolean, T, U>(
@@ -202,7 +208,7 @@ const joinHelper = <A extends boolean, T, U>(
   | Array<WithoutUndefined<ReturnType<ParserOp<T>>>> => {
   const values: Array<WithoutUndefined<ReturnType<ParserOp<T>>>> = []
   const firstValue = rule(p, obj)
-  if (!firstValue) {
+  if (firstValue === undefined) {
     // typescript doesn't understand requireOne is bound by A
     return requireOne ? (undefined as any) : []
   }
@@ -213,14 +219,14 @@ const joinHelper = <A extends boolean, T, U>(
   while (!p.atEof()) {
     const beforeJoinIndex = p.index
     p.skipSpacing()
-    if (!joinRule(p)) {
+    if (joinRule(p) === undefined) {
       p.restoreIndex(beforeJoinIndex)
       break
     }
 
     p.skipSpacing()
     const nextValue = rule(p, obj)
-    if (!nextValue) {
+    if (nextValue === undefined) {
       p.restoreIndex(beforeJoinIndex)
       break
     }
@@ -254,7 +260,7 @@ export const treeJoin = <T, U, O>(
     // to reset the object state is needed
     const obj = makeObject()
     const values = parseJoin(p, obj)
-    if (!values) {
+    if (values === undefined) {
       return undefined
     } else {
       return values.length > 1 ? obj : values[0]
@@ -272,10 +278,69 @@ export const treeRepetition = <T, O>(
   return (p: Parser): T | O | undefined => {
     const obj = makeObject()
     const values = parseAtLeastOne(p, obj)
-    if (!values) {
+    if (values === undefined) {
       return undefined
     } else {
       return values.length > 1 ? obj : values[0]
     }
   }
+}
+
+// see comments on sequenceCustom for why this is needed
+export const treeSequenceCustom = <R>() => <O, T extends any[]>(
+  makeObject: () => O,
+  ...rules: T
+) => (p: Parser): R | O | undefined => {
+  const obj = makeObject()
+  const ret: any[] = []
+  let hasTreeOption = false
+
+  for (const rule of rules) {
+    const ruleValue = rule(p, obj)
+    if (typeof ruleValue === 'boolean') {
+      if (ruleValue === false) {
+        return undefined
+      }
+      // don't store predicates
+    } else {
+      if (ruleValue === undefined) {
+        return undefined
+      } else if (ruleValue !== '') {
+        if (!hasTreeOption && rule.isTreeOption && ruleValue !== '') {
+          hasTreeOption = true
+        }
+        ret.push(ruleValue)
+      }
+    }
+    p.skipSpacing()
+  }
+
+  if (hasTreeOption) {
+    return obj
+  } else {
+    return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const treeSequence = <O, T extends any[]>(
+  makeObject: () => O,
+  ...rules: T
+) => treeSequenceCustom<SequenceReturnType<T>>()(makeObject, ...rules)
+
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export const treeOptional = <T>(rule: ParserOp<T>) => {
+  const operator = (p: Parser): T | string => {
+    const startIndex = p.index
+    const ruleAst = rule(p)
+    if (ruleAst === undefined) {
+      p.index = startIndex
+      // maybe should return null?
+      return ''
+    } else {
+      return ruleAst
+    }
+  }
+  operator.isTreeOption = true
+  return operator
 }

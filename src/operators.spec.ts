@@ -17,6 +17,8 @@ import {
   appendProperty,
   zeroOrMore,
   treeRepetition,
+  treeSequence,
+  treeOptional,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -373,6 +375,49 @@ describe('operator', () => {
         const p = new Parser('a b')
         expect(simpleTree(p)).toEqual({ values: ['a', 'b'] })
         expect(p.atEof).toBeTruthy()
+      })
+    })
+  })
+
+  describe('treeSequence', () => {
+    describe('"cat" |? value:[a-z]', () => {
+      const parseTreeSequence = treeSequence(
+        () => ({ value: '' }),
+        treeOptional(constant('cat')),
+        property('value', characterRange('a', 'z')),
+      )
+
+      it('parses "cat z" as object', () => {
+        const p = new Parser('cat z')
+        expect(parseTreeSequence(p)).toEqual({ value: 'z' })
+        expect(p.atEof).toBeTruthy()
+      })
+
+      it('parses "d" as string', () => {
+        const p = new Parser('d')
+        expect(parseTreeSequence(p)).toEqual('d')
+        expect(p.atEof).toBeTruthy()
+      })
+    })
+
+    describe('value:[a-z] [A-Z]|?', () => {
+      const parseTreeSequence = treeSequence(
+        () => ({ value: '' }),
+        property('value', characterRange('a', 'z')),
+        treeOptional(characterRange('A', 'Z')),
+      )
+
+      it('parses "s S" as object', () => {
+        const p = new Parser('s S')
+        expect(parseTreeSequence(p)).toEqual({ value: 's' })
+        expect(p.atEof).toBeTruthy()
+      })
+
+      it('parses "s d" as string', () => {
+        const p = new Parser('s d')
+        expect(parseTreeSequence(p)).toEqual('s')
+        // sequences don't rewind
+        expect(p.next).toEqual('d')
       })
     })
   })
