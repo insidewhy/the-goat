@@ -127,12 +127,17 @@ export const object = <T, O>(factory: () => O, rule: ParserOp<T>) => (
 
 type WithoutUndefined<T> = T extends undefined ? never : T
 
-type SequenceReturnType<T> = T extends (...args: any[]) => any
+type ReturnTypeWithoutUndefined<T> = T extends (...args: any[]) => any
   ? WithoutUndefined<ReturnType<T>>
-  : string
-type SequenceReturnTypes<T extends any[]> = {
-  [K in keyof T]: SequenceReturnType<T[K]>
-}
+  : never
+
+type UnwrapOneTuple<T extends any[]> = T['length'] extends 1 ? T[0] : T
+
+type SequenceReturnType<T extends any[]> = UnwrapOneTuple<
+  {
+    [K in keyof T]: ReturnTypeWithoutUndefined<T[K]>
+  }
+>
 
 /**
  * Same as parseSequence but when a custom return type is needed. We can filter
@@ -165,7 +170,7 @@ export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
 export const sequence = <T extends any[]>(...rules: T) =>
   // see comment above :(
   // sequenceCustom<FilterBooleans<SequenceReturnTypes<T>>>()(...rules)
-  sequenceCustom<SequenceReturnTypes<T>>()(...rules)
+  sequenceCustom<SequenceReturnType<T>>()(...rules)
 
 export const andPredicate = <T>(rule: ParserOp<T>) => (
   p: Parser,
