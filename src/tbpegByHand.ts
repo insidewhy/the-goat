@@ -15,6 +15,8 @@ import {
   treeJoin,
   appendProperty,
   treeRepetition,
+  treeOptional,
+  treeSequenceCustom,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -68,7 +70,7 @@ export interface Sequence extends Ast<'Sequence'> {
 
 export interface Assignment extends Ast<'Assignment'> {
   propertyName: PropertyName
-  expression: Array<Join | Lexeme | Repetition | ExpressionLeaf>
+  expression: Join | Lexeme | Repetition | ExpressionLeaf
 }
 
 export interface Join extends Ast<'Join'> {
@@ -148,11 +150,6 @@ export interface TreeRule extends Ast<'TreeRule'> {
   expression: TreeExpression
 }
 
-export function parseTreeRule(p: Parser): TreeRule | undefined {
-  // TODO:
-  return undefined
-}
-
 export type TreeExpression =
   | TreeRepetition
   | TreeJoin
@@ -225,12 +222,23 @@ export const parseGroup = object(
 export const parseExpressionLeaf = alternation(
   parseGroup,
   sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
+  // TODO: more
+)
+
+const makeAssignment = (): Assignment => ({ type: 'Assignment' } as Assignment)
+
+export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
+  makeAssignment,
+  treeOptional(
+    sequence(property('propertyName', parsePropertyName), constant(':')),
+  ),
+  // TODO: should be parseJoin
+  property('expression', parseExpressionLeaf),
 )
 
 export const parseSequence = treeRepetition(
   (): Sequence => ({ type: 'Sequence', expressions: [] } as Sequence),
-  // TODO: should be parseAssignment
-  appendProperty('expressions', parseExpressionLeaf),
+  appendProperty('expressions', parseAssignment),
 )
 
 export const parseAlternation = treeJoin(
@@ -251,5 +259,10 @@ export const parseRule = object(
     property('expression', parseExpression),
   ),
 )
+
+export function parseTreeRule(p: Parser): TreeRule | undefined {
+  // TODO:
+  return undefined
+}
 
 const parseGrammar = atLeastOne(alternation(parseRule, parseTreeRule))

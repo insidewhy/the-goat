@@ -7,6 +7,7 @@ import {
   parseExpressionLeaf,
   parseAlternation,
   parseSequence,
+  parseAssignment,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -119,12 +120,12 @@ describe('tbpegByHand', () => {
   })
 
   describe('parseSequence', () => {
-    it('matches RuleName and stores RuleName object', () => {
-      const p = new Parser('RuleName')
+    it('matches TheRuleName and stores RuleName object', () => {
+      const p = new Parser('TheRuleName')
       const result = parseAlternation(p)
       expect(result).toEqual({
         type: 'RuleName',
-        value: 'RuleName',
+        value: 'TheRuleName',
       })
     })
 
@@ -137,6 +138,56 @@ describe('tbpegByHand', () => {
           { type: 'RuleName', value: 'Seq1' },
           { type: 'RuleName', value: 'Seq2' },
         ],
+      })
+    })
+
+    it('matches prop1:Seq1 prop2:Seq2, storing Sequence object with Assignment expressions', () => {
+      const p = new Parser('prop1:Seq1 prop2:Seq2')
+      const result = parseSequence(p)
+      expect(result).toEqual({
+        type: 'Sequence',
+        expressions: [
+          {
+            type: 'Assignment',
+            propertyName: 'prop1',
+            expression: {
+              type: 'RuleName',
+              value: 'Seq1',
+            },
+          },
+          {
+            type: 'Assignment',
+            propertyName: 'prop2',
+            expression: {
+              type: 'RuleName',
+              value: 'Seq2',
+            },
+          },
+        ],
+      })
+    })
+  })
+
+  describe('parseAssignment', () => {
+    it('matches TheRuleName and stores RuleName object', () => {
+      const p = new Parser('TheRuleName')
+      const result = parseAssignment(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'TheRuleName',
+      })
+    })
+
+    it('matches rule:TheRuleName and stores assignment object', () => {
+      const p = new Parser('prop:TheRuleName')
+      const result = parseAssignment(p)
+      expect(result).toEqual({
+        type: 'Assignment',
+        propertyName: 'prop',
+        expression: {
+          type: 'RuleName',
+          value: 'TheRuleName',
+        },
       })
     })
   })
