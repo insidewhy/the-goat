@@ -330,9 +330,9 @@ export const treeSequence = <O, T extends any[]>(
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const treeOptional = <T>(rule: ParserOp<T>) => {
-  const operator = (p: Parser): T | string => {
+  const operator = <O>(p: Parser, obj?: O): T | string => {
     const startIndex = p.index
-    const ruleAst = rule(p)
+    const ruleAst = rule(p, obj)
     if (ruleAst === undefined) {
       p.index = startIndex
       // maybe should return null?
