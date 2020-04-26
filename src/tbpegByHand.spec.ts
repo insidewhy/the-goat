@@ -11,6 +11,7 @@ import {
   parseJoin,
   parseLexeme,
   parseRepetition,
+  RuleName,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -24,18 +25,23 @@ class Parser extends AbstractParser {
   }
 }
 
+const makeNamedRule = (name: string): RuleName => ({
+  type: 'RuleName',
+  value: name,
+})
+
 describe('tbpegByHand', () => {
   describe('parseRuleName', () => {
     it('matches BabyChan', () => {
       const p = new Parser('BabyChan')
       const result = parseRuleName(p)
-      expect(result).toEqual({ type: 'RuleName', value: 'BabyChan' })
+      expect(result).toEqual(makeNamedRule('BabyChan'))
     })
 
     it('matches "Baby Chan" up to space', () => {
       const p = new Parser('Baby Chan')
       const result = parseRuleName(p)
-      expect(result).toEqual({ type: 'RuleName', value: 'Baby' })
+      expect(result).toEqual(makeNamedRule('Baby'))
       expect(p.next).toEqual(' ')
     })
   })
@@ -61,8 +67,8 @@ describe('tbpegByHand', () => {
       const result = parseRule(p)
       expect(result).toEqual({
         type: 'Rule',
-        name: { type: 'RuleName', value: 'Name' },
-        expression: { type: 'RuleName', value: 'Other' },
+        name: makeNamedRule('Name'),
+        expression: makeNamedRule('Other'),
       })
     })
   })
@@ -73,10 +79,7 @@ describe('tbpegByHand', () => {
       const result = parseGroup(p)
       expect(result).toEqual({
         type: 'Group',
-        expression: {
-          type: 'RuleName',
-          value: 'Name',
-        },
+        expression: makeNamedRule('Name'),
       })
     })
   })
@@ -85,10 +88,7 @@ describe('tbpegByHand', () => {
     it('matches RuleName and stores RuleName object', () => {
       const p = new Parser('RuleName')
       const result = parseAlternation(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'RuleName',
-      })
+      expect(result).toEqual(makeNamedRule('RuleName'))
     })
 
     it('matches Rule / OtherRule, storing Alternation object', () => {
@@ -96,10 +96,7 @@ describe('tbpegByHand', () => {
       const result = parseAlternation(p)
       expect(result).toEqual({
         type: 'Alternation',
-        expressions: [
-          { type: 'RuleName', value: 'Rule' },
-          { type: 'RuleName', value: 'OtherRule' },
-        ],
+        expressions: [makeNamedRule('Rule'), makeNamedRule('OtherRule')],
       })
     })
 
@@ -111,12 +108,9 @@ describe('tbpegByHand', () => {
         expressions: [
           {
             type: 'Sequence',
-            expressions: [
-              { type: 'RuleName', value: 'Seq1' },
-              { type: 'RuleName', value: 'Seq2' },
-            ],
+            expressions: [makeNamedRule('Seq1'), makeNamedRule('Seq2')],
           },
-          { type: 'RuleName', value: 'OtherRule' },
+          makeNamedRule('OtherRule'),
         ],
       })
     })
@@ -126,10 +120,7 @@ describe('tbpegByHand', () => {
     it('matches TheRuleName and stores RuleName object', () => {
       const p = new Parser('TheRuleName')
       const result = parseAlternation(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'TheRuleName',
-      })
+      expect(result).toEqual(makeNamedRule('TheRuleName'))
     })
 
     it('matches Seq1 Seq2, storing Sequence object', () => {
@@ -137,10 +128,7 @@ describe('tbpegByHand', () => {
       const result = parseSequence(p)
       expect(result).toEqual({
         type: 'Sequence',
-        expressions: [
-          { type: 'RuleName', value: 'Seq1' },
-          { type: 'RuleName', value: 'Seq2' },
-        ],
+        expressions: [makeNamedRule('Seq1'), makeNamedRule('Seq2')],
       })
     })
 
@@ -153,18 +141,12 @@ describe('tbpegByHand', () => {
           {
             type: 'Assignment',
             propertyName: 'prop1',
-            expression: {
-              type: 'RuleName',
-              value: 'Seq1',
-            },
+            expression: makeNamedRule('Seq1'),
           },
           {
             type: 'Assignment',
             propertyName: 'prop2',
-            expression: {
-              type: 'RuleName',
-              value: 'Seq2',
-            },
+            expression: makeNamedRule('Seq2'),
           },
         ],
       })
@@ -175,10 +157,7 @@ describe('tbpegByHand', () => {
     it('matches TheRuleName and stores RuleName object', () => {
       const p = new Parser('TheRuleName')
       const result = parseAssignment(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'TheRuleName',
-      })
+      expect(result).toEqual(makeNamedRule('TheRuleName'))
     })
 
     it('matches rule:TheRuleName and stores assignment object', () => {
@@ -187,10 +166,7 @@ describe('tbpegByHand', () => {
       expect(result).toEqual({
         type: 'Assignment',
         propertyName: 'prop',
-        expression: {
-          type: 'RuleName',
-          value: 'TheRuleName',
-        },
+        expression: makeNamedRule('TheRuleName'),
       })
     })
   })
@@ -199,10 +175,7 @@ describe('tbpegByHand', () => {
     it('matches TheRuleName and stores RuleName object', () => {
       const p = new Parser('TheRuleName')
       const result = parseJoin(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'TheRuleName',
-      })
+      expect(result).toEqual(makeNamedRule('TheRuleName'))
     })
 
     it('matches TheRuleName % OtherRule and stores join object', () => {
@@ -211,14 +184,8 @@ describe('tbpegByHand', () => {
       expect(result).toEqual({
         type: 'Join',
         repetition: 'ZeroOrMore',
-        expression: {
-          type: 'RuleName',
-          value: 'TheRuleName',
-        },
-        joinWith: {
-          type: 'RuleName',
-          value: 'OtherRule',
-        },
+        expression: makeNamedRule('TheRuleName'),
+        joinWith: makeNamedRule('OtherRule'),
       })
     })
   })
@@ -227,10 +194,7 @@ describe('tbpegByHand', () => {
     it('matches TheRuleName and stores RuleName object', () => {
       const p = new Parser('TheRuleName')
       const result = parseLexeme(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'TheRuleName',
-      })
+      expect(result).toEqual(makeNamedRule('TheRuleName'))
     })
 
     it('matches TheRuleName % OtherRule and stores join object', () => {
@@ -238,16 +202,7 @@ describe('tbpegByHand', () => {
       const result = parseLexeme(p)
       expect(result).toEqual({
         type: 'Lexeme',
-        expressions: [
-          {
-            type: 'RuleName',
-            value: 'TheRuleName',
-          },
-          {
-            type: 'RuleName',
-            value: 'OtherRule',
-          },
-        ],
+        expressions: [makeNamedRule('TheRuleName'), makeNamedRule('OtherRule')],
       })
     })
   })
@@ -256,10 +211,7 @@ describe('tbpegByHand', () => {
     it('matches TheRuleName and stores RuleName object', () => {
       const p = new Parser('TheRuleName')
       const result = parseRepetition(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'TheRuleName',
-      })
+      expect(result).toEqual(makeNamedRule('TheRuleName'))
     })
 
     it('matches (One ^ Two)+ and stores repetition object', () => {
@@ -272,16 +224,7 @@ describe('tbpegByHand', () => {
           type: 'Group',
           expression: {
             type: 'Lexeme',
-            expressions: [
-              {
-                type: 'RuleName',
-                value: 'One',
-              },
-              {
-                type: 'RuleName',
-                value: 'Two',
-              },
-            ],
+            expressions: [makeNamedRule('One'), makeNamedRule('Two')],
           },
         },
       })
@@ -293,10 +236,7 @@ describe('tbpegByHand', () => {
       expect(result).toEqual({
         type: 'Repetition',
         repetition: 'ZeroOrMore',
-        expression: {
-          type: 'RuleName',
-          value: 'Three',
-        },
+        expression: makeNamedRule('Three'),
       })
     })
   })
@@ -305,10 +245,7 @@ describe('tbpegByHand', () => {
     it('matches RuleName', () => {
       const p = new Parser('RuleName')
       const result = parseExpressionLeaf(p)
-      expect(result).toEqual({
-        type: 'RuleName',
-        value: 'RuleName',
-      })
+      expect(result).toEqual(makeNamedRule('RuleName'))
     })
 
     it('does not match "RuleName <-" due to not-predicate in sequence', () => {
