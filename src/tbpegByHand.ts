@@ -225,6 +225,9 @@ export const parseExpressionLeaf = alternation(
   // TODO: more
 )
 
+// TODO:
+export const parseJoin = parseExpressionLeaf
+
 const makeAssignment = (): Assignment => ({ type: 'Assignment' } as Assignment)
 
 export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
@@ -232,8 +235,7 @@ export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
   treeOptional(
     sequence(property('propertyName', parsePropertyName), constant(':')),
   ),
-  // TODO: should be parseJoin
-  property('expression', parseExpressionLeaf),
+  property('expression', parseJoin),
 )
 
 export const parseSequence = treeRepetition(

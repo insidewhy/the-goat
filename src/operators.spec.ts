@@ -19,6 +19,7 @@ import {
   treeRepetition,
   treeSequence,
   treeOptional,
+  asConstant,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -50,6 +51,21 @@ describe('operator', () => {
         const p = new Parser('cat oh')
         const value = parseConstantsAlternation(p)
         expect(value).toEqual('cat')
+      })
+    })
+  })
+
+  describe('asConstant', () => {
+    describe('[a-d] $as "cat" / [e-h] $as "lovely"', () => {
+      const parseEnum = alternation(
+        asConstant(characterRange('a', 'd'), 'cat'),
+        asConstant(characterRange('e', 'h'), 'lovely'),
+      )
+
+      it('parses "a" as "cat"', () => {
+        // mostly to verify that doesn't fail typecheck
+        const result: 'cat' | 'lovely' | undefined = parseEnum(new Parser('a'))
+        expect(result).toEqual('cat')
       })
     })
   })

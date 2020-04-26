@@ -30,6 +30,13 @@ export const alternation = <T extends any[]>(...rules: T) => <O>(
   return undefined
 }
 
+export const asConstant = <T, K extends string>(
+  rule: ParserOp<T>,
+  constVal: K,
+) => (p: Parser): K | undefined => {
+  return rule(p) === undefined ? undefined : constVal
+}
+
 export const zeroOrMore = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
