@@ -15,7 +15,7 @@ Alternation <= expressions:$next |% "/"
 Sequence <= expressions:$next|+
 Assignment <= (propertyName:PropertyName ":")|? expression:$next
 Join <=
-  expressions:$next (
+  expression:$next (
     repetition:$enum("%+" $as OneOrMore / "%" $as ZeroOrMore)
     joinWith:$next
   )|?

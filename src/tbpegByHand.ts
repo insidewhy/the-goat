@@ -17,6 +17,7 @@ import {
   treeRepetition,
   treeOptional,
   treeSequenceCustom,
+  asConstant,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -74,9 +75,9 @@ export interface Assignment extends Ast<'Assignment'> {
 }
 
 export interface Join extends Ast<'Join'> {
-  expressions: Array<Lexeme | Repetition | ExpressionLeaf>
+  expression: Lexeme | Repetition | ExpressionLeaf
   repetition: 'OneOrMore' | 'ZeroOrMore'
-  joinWith: Array<Lexeme | Repetition | ExpressionLeaf>
+  joinWith: Lexeme | Repetition | ExpressionLeaf
 }
 
 export interface Lexeme extends Ast<'Lexeme'> {
@@ -226,7 +227,26 @@ export const parseExpressionLeaf = alternation(
 )
 
 // TODO:
-export const parseJoin = parseExpressionLeaf
+export const parseLexeme = parseExpressionLeaf
+
+const makeJoin = (): Join => ({ type: 'Join' } as Join)
+
+export const parseJoin = treeSequenceCustom<Join['expression']>()(
+  makeJoin,
+  property('expression', parseLexeme),
+  treeOptional(
+    sequence(
+      property(
+        'repetition',
+        alternation(
+          asConstant(constant('%+'), 'OneOrMore'),
+          asConstant(constant('%'), 'ZeroOrMore'),
+        ),
+      ),
+      property('joinWith', parseLexeme),
+    ),
+  ),
+)
 
 const makeAssignment = (): Assignment => ({ type: 'Assignment' } as Assignment)
 

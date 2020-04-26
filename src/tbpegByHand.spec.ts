@@ -8,6 +8,7 @@ import {
   parseAlternation,
   parseSequence,
   parseAssignment,
+  parseJoin,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -187,6 +188,34 @@ describe('tbpegByHand', () => {
         expression: {
           type: 'RuleName',
           value: 'TheRuleName',
+        },
+      })
+    })
+  })
+
+  describe('parseJoin', () => {
+    it('matches TheRuleName and stores RuleName object', () => {
+      const p = new Parser('TheRuleName')
+      const result = parseJoin(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'TheRuleName',
+      })
+    })
+
+    it('matches TheRuleName % OtherRule and stores join object', () => {
+      const p = new Parser('TheRuleName % OtherRule')
+      const result = parseJoin(p)
+      expect(result).toEqual({
+        type: 'Join',
+        repetition: 'ZeroOrMore',
+        expression: {
+          type: 'RuleName',
+          value: 'TheRuleName',
+        },
+        joinWith: {
+          type: 'RuleName',
+          value: 'OtherRule',
         },
       })
     })
