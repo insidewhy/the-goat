@@ -59,10 +59,10 @@ CharacterRange <= (from:\w) ^ "-" ^ (to:\w)
 
 # Tree rules
 TreeRule <= name:RuleName "<=" expression:TreeExpression
-TreeExpression <- TreeRepetition / TreeJoin / TreeOptions / Expression
+TreeExpression <- TreeRepetition / TreeJoin / TreeSequence / Expression
 
 TreeRepetition <= expression:Expression "|+"
 TreeJoin <= expression:Expression "|%" joinWith:Constant
 
-TreeOptions <= options:(Expression / TreeOption)+
+TreeSequence <= options:(Expression / TreeOption)+
 TreeOption <= option:Assignment "|?"

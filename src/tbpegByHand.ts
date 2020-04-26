@@ -103,8 +103,13 @@ export type ExpressionLeaf =
   | Enum
   | Characters
   | Next
+  | Predicate
 
 export interface Group extends Ast<'Group'> {
+  expression: Expression
+}
+
+export interface Predicate extends Ast<'Predicate'> {
   expression: Expression
 }
 
@@ -308,9 +313,18 @@ export const parseRule = object(
   ),
 )
 
-export function parseTreeRule(p: Parser): TreeRule | undefined {
-  // TODO:
-  return undefined
-}
+const makeTreeRule = (): TreeRule => ({ type: 'TreeRule' } as TreeRule)
+
+// TODO:
+export const parseTreeExpression = parseExpressionLeaf
+
+export const parseTreeRule = object(
+  makeTreeRule,
+  sequence(
+    property('name', parseRuleName),
+    constant('<='),
+    property('expression', parseTreeExpression),
+  ),
+)
 
 const parseGrammar = atLeastOne(alternation(parseRule, parseTreeRule))
