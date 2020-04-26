@@ -101,10 +101,10 @@ export const lexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   return p.index === startIndex ? undefined : p.data.slice(startIndex, p.index)
 }
 
-export const property = <T>(propName: string, rule: ParserOp<T>) => <O>(
-  p: Parser,
-  obj?: O,
-): T | undefined => {
+export const property = <K extends string, T>(
+  propName: K,
+  rule: ParserOp<T>,
+) => <O extends Record<K, T>>(p: Parser, obj: O): T | undefined => {
   const result = rule(p, obj)
   if (result === undefined) {
     return undefined
