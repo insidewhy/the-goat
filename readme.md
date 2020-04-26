@@ -21,7 +21,7 @@ Product    <= expressions:$next |% "*"
 Division   <= expressions:$next |% "/"
 Leaf       <- Number | Group
 Group      <= expression:Expression
-Number     <- value:("-"? ^ [0-9])+
+Number     <- value:("-"? ^ [0-9]+)
 ```
 
 Produces the following AST type:
