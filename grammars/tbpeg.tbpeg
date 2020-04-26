@@ -34,6 +34,7 @@ ExpressionLeaf <-
   EscapeCode /
   Enum /
   Characters /
+  NotCharacter /
   Next
 
 Predicate <= predicate:$enum("&!" $as NotPredicate / "&" $as AndPredicate) expression:ExpressionLeaf
@@ -41,12 +42,13 @@ Predicate <= predicate:$enum("&!" $as NotPredicate / "&" $as AndPredicate) expre
 Group <= "(" expression:Expression ")"
 
 # expression leafs
-String <= \" ^ value:(EscapeCodeSequence / ! \")^* ^ \"
+String <= \" ^ value:(EscapeSequence / ! \")^* ^ \"
 EscapeSequence <= \\ ^ ( value:(\\ / "n" / \") )
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
 AnyCharacter <= "."
+NotCharacter <= "!" character:(EscapeSequence / \" ^ . ^ \")
 EscapeCode <= \\ ^ code:("w" / "s")
 Enum <= "$enum" "(" expression:(EnumValAssignment %+ "/") ")"
 EnumValAssignment <= match:Constant ~ "$as" ~ enumValue:[a-zA-Z_]+

@@ -108,6 +108,7 @@ export type ExpressionLeaf =
   | SpacingRule
   | EscapeSequence
   | AnyCharacter
+  | NotCharacter
   | EscapeCode
   | Enum
   | Characters
@@ -137,6 +138,10 @@ export type Constant = String | SpacingRule | EscapeSequence
 export type Next = Ast<'Next'>
 
 export type AnyCharacter = Ast<'AnyCharacter'>
+
+export interface NotCharacter extends Ast<'NotCharacter'> {
+  character: string
+}
 
 export interface EscapeCode extends Ast<'EscapeCode'> {
   code: string
