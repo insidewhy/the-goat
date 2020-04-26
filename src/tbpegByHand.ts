@@ -226,8 +226,23 @@ export const parseExpressionLeaf = alternation(
   // TODO: more
 )
 
-// TODO:
-export const parseRepetition = parseExpressionLeaf
+const makeRepetition = (): Repetition => ({ type: 'Repetition' } as Repetition)
+
+export const parseRepetition = treeSequenceCustom<Repetition['expression']>()(
+  makeRepetition,
+  property('expression', parseExpressionLeaf),
+  treeOptional(
+    property(
+      'repetition',
+      alternation(
+        asConstant(constant('+'), 'OneOrMore'),
+        asConstant(constant('*'), 'ZeroOrMore'),
+        asConstant(constant('^+'), 'LexemeOneOrMore'),
+        asConstant(constant('^*'), 'LexemeZeroOrMore'),
+      ),
+    ),
+  ),
+)
 
 const makeLexeme = (): Lexeme => ({ type: 'Lexeme', expressions: [] } as Lexeme)
 

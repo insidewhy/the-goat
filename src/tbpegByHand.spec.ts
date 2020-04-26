@@ -10,6 +10,7 @@ import {
   parseAssignment,
   parseJoin,
   parseLexeme,
+  parseRepetition,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -247,6 +248,55 @@ describe('tbpegByHand', () => {
             value: 'OtherRule',
           },
         ],
+      })
+    })
+  })
+
+  describe('parseRepetition', () => {
+    it('matches TheRuleName and stores RuleName object', () => {
+      const p = new Parser('TheRuleName')
+      const result = parseRepetition(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'TheRuleName',
+      })
+    })
+
+    it('matches (One ^ Two)+ and stores repetition object', () => {
+      const p = new Parser('(One ^ Two)+')
+      const result = parseRepetition(p)
+      expect(result).toEqual({
+        type: 'Repetition',
+        repetition: 'OneOrMore',
+        expression: {
+          type: 'Group',
+          expression: {
+            type: 'Lexeme',
+            expressions: [
+              {
+                type: 'RuleName',
+                value: 'One',
+              },
+              {
+                type: 'RuleName',
+                value: 'Two',
+              },
+            ],
+          },
+        },
+      })
+    })
+
+    it('matches Three* and stores repetition object', () => {
+      const p = new Parser('Three*')
+      const result = parseRepetition(p)
+      expect(result).toEqual({
+        type: 'Repetition',
+        repetition: 'ZeroOrMore',
+        expression: {
+          type: 'RuleName',
+          value: 'Three',
+        },
       })
     })
   })
