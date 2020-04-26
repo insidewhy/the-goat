@@ -12,7 +12,7 @@ Rule <= name:RuleName "<-" expression:Expression
 # main expression tree
 Expression <- $next
 Alternation <= expressions:$next |% "/"
-Sequence <= expressions:$next|+
+Sequence <= expressions:($next / Predicate)|+
 Assignment <= (propertyName:PropertyName ":")|? expression:$next
 Join <=
   expression:$next (
@@ -34,11 +34,10 @@ ExpressionLeaf <-
   EscapeCode /
   Enum /
   Characters /
-  Next /
-  Predicate
+  Next
 
 # TODO: this should only be allowed in a sequence?
-Predicate <= $enum("&!" $as NotPredicate / "&" $as AndPredicate)|? ExpressionLeaf
+Predicate <= predicate:$enum("&!" $as NotPredicate / "&" $as AndPredicate) expression:ExpressionLeaf
 
 Group <= "(" expression:Expression ")"
 
@@ -59,10 +58,10 @@ CharacterRange <= (from:\w) ^ "-" ^ (to:\w)
 
 # Tree rules
 TreeRule <= name:RuleName "<=" expression:TreeExpression
-TreeExpression <- TreeRepetition / TreeJoin / TreeSequence / Expression
+TreeExpression <- TreeRepetition / TreeJoin / TreeSequence
 
 TreeRepetition <= expression:Expression "|+"
 TreeJoin <= expression:Expression "|%" joinWith:Constant
 
-TreeSequence <= options:(Expression / TreeOption)+
+TreeSequence <= expressions:(Expression / TreeOption / Predicate)+
 TreeOption <= option:Assignment "|?"

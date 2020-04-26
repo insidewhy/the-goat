@@ -57,6 +57,21 @@ export const zeroOrMore = <T>(rule: ParserOp<T>) => <O>(
   return ast
 }
 
+export const optional = <T>(rule: ParserOp<T>) => <O>(
+  p: Parser,
+  obj?: O,
+): T | string => {
+  const startIndex = p.index
+  const ruleAst = rule(p, obj)
+  if (ruleAst === undefined) {
+    p.index = startIndex
+    // maybe should return null?
+    return ''
+  } else {
+    return ruleAst
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const atLeastOne = <T>(rule: ParserOp<T>) => {
   const parseZeroOrMore = zeroOrMore(rule)
@@ -337,17 +352,7 @@ export const treeSequence = <O, T extends any[]>(
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export const treeOptional = <T>(rule: ParserOp<T>) => {
-  const operator = <O>(p: Parser, obj?: O): T | string => {
-    const startIndex = p.index
-    const ruleAst = rule(p, obj)
-    if (ruleAst === undefined) {
-      p.index = startIndex
-      // maybe should return null?
-      return ''
-    } else {
-      return ruleAst
-    }
-  }
-  operator.isTreeOption = true
+  const operator = optional(rule)
+  ;(operator as any).isTreeOption = true
   return operator
 }

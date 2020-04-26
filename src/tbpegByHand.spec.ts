@@ -132,6 +132,22 @@ describe('tbpegByHand', () => {
       })
     })
 
+    it('matches Cat &Angry, storing Sequence object with predicate', () => {
+      const p = new Parser('Cat &!Angry')
+      const result = parseSequence(p)
+      expect(result).toEqual({
+        type: 'Sequence',
+        expressions: [
+          makeNamedRule('Cat'),
+          {
+            type: 'Predicate',
+            predicate: 'NotPredicate',
+            expression: makeNamedRule('Angry'),
+          },
+        ],
+      })
+    })
+
     it('matches prop1:Seq1 prop2:Seq2, storing Sequence object with Assignment expressions', () => {
       const p = new Parser('prop1:Seq1 prop2:Seq2')
       const result = parseSequence(p)

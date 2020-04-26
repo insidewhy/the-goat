@@ -53,6 +53,7 @@ export interface Rule extends Ast<'Rule'> {
 export type Expression =
   | Alternation
   | Sequence
+  | Predicate
   | Assignment
   | Join
   | Lexeme
@@ -61,12 +62,20 @@ export type Expression =
 
 export interface Alternation extends Ast<'Alternation'> {
   expressions: Array<
-    Sequence | Assignment | Join | Lexeme | Repetition | ExpressionLeaf
+    | Sequence
+    | Assignment
+    | Join
+    | Lexeme
+    | Repetition
+    | ExpressionLeaf
+    | Predicate
   >
 }
 
 export interface Sequence extends Ast<'Sequence'> {
-  expressions: Array<Assignment | Join | Lexeme | Repetition | ExpressionLeaf>
+  expressions: Array<
+    Assignment | Join | Lexeme | Repetition | ExpressionLeaf | Predicate
+  >
 }
 
 export interface Assignment extends Ast<'Assignment'> {
@@ -103,13 +112,13 @@ export type ExpressionLeaf =
   | Enum
   | Characters
   | Next
-  | Predicate
 
 export interface Group extends Ast<'Group'> {
   expression: Expression
 }
 
 export interface Predicate extends Ast<'Predicate'> {
+  predicate: 'AndPredicate' | 'NotPredicate'
   expression: Expression
 }
 
@@ -156,11 +165,7 @@ export interface TreeRule extends Ast<'TreeRule'> {
   expression: TreeExpression
 }
 
-export type TreeExpression =
-  | TreeRepetition
-  | TreeJoin
-  | TreeOptions
-  | Expression
+export type TreeExpression = TreeRepetition | TreeJoin | TreeSequence
 
 export interface TreeRepetition extends Ast<'TreeRepetition'> {
   expression: Expression
@@ -171,8 +176,8 @@ export interface TreeJoin extends Ast<'TreeJoin'> {
   joinWith: Constant
 }
 
-export interface TreeOptions extends Ast<'TreeOptions'> {
-  options: Array<Expression | TreeOption>
+export interface TreeSequence extends Ast<'TreeSequence'> {
+  expressions: Array<Expression | TreeOption | Predicate>
 }
 
 export interface TreeOption extends Ast<'TreeOption'> {
@@ -286,9 +291,25 @@ export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
   property('expression', parseJoin),
 )
 
+const makePredicate = (): Predicate => ({ type: 'Predicate' } as Predicate)
+
+export const parsePredicate = object(
+  makePredicate,
+  sequence(
+    property(
+      'predicate',
+      alternation(
+        asConstant(constant('&!'), 'NotPredicate'),
+        asConstant(constant('&'), 'AndPredicate'),
+      ),
+    ),
+    property('expression', parseExpressionLeaf),
+  ),
+)
+
 export const parseSequence = treeRepetition(
   (): Sequence => ({ type: 'Sequence', expressions: [] } as Sequence),
-  appendProperty('expressions', parseAssignment),
+  appendProperty('expressions', alternation(parseAssignment, parsePredicate)),
 )
 
 const makeAlternation = (): Alternation =>
