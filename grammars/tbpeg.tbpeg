@@ -36,7 +36,6 @@ ExpressionLeaf <-
   Characters /
   Next
 
-# TODO: this should only be allowed in a sequence?
 Predicate <= predicate:$enum("&!" $as NotPredicate / "&" $as AndPredicate) expression:ExpressionLeaf
 
 Group <= "(" expression:Expression ")"
@@ -63,5 +62,5 @@ TreeExpression <- TreeRepetition / TreeJoin / TreeSequence
 TreeRepetition <= expression:Expression "|+"
 TreeJoin <= expression:Expression "|%" joinWith:Constant
 
-TreeSequence <= expressions:(Expression / TreeOption / Predicate)+
+TreeSequence <= expressions:(TreeOption / Assignment / Predicate)+
 TreeOption <= option:Assignment "|?"

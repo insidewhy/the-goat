@@ -12,6 +12,11 @@ import {
   parseLexeme,
   parseRepetition,
   RuleName,
+  parseTreeRepetition,
+  parseTreeJoin,
+  parseTreeSequence,
+  parseTreeOption,
+  parseTreeRule,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -270,6 +275,73 @@ describe('tbpegByHand', () => {
       expect(result).toEqual(undefined)
       // rewound to beginning by alternation
       expect(p.next).toEqual('R')
+    })
+  })
+
+  describe('parseTreeRule', () => {
+    it('parses Tree <= RuleName |% Oats as TreeRule object', () => {
+      const p = new Parser('Tree <= RuleName |% Oats')
+      const result = parseTreeRule(p)
+      expect(result).toEqual({
+        type: 'TreeRule',
+        name: makeNamedRule('Tree'),
+        expression: {
+          type: 'TreeJoin',
+          expression: makeNamedRule('RuleName'),
+          joinWith: makeNamedRule('Oats'),
+        },
+      })
+    })
+  })
+
+  describe('parseTreeJoin', () => {
+    it('parses RuleName |% Oats as TreeJoin object', () => {
+      const p = new Parser('RuleName |% Oats')
+      const result = parseTreeJoin(p)
+      expect(result).toEqual({
+        type: 'TreeJoin',
+        expression: makeNamedRule('RuleName'),
+        joinWith: makeNamedRule('Oats'),
+      })
+    })
+  })
+
+  describe('parseTreeRepetition', () => {
+    it('parses RuleName|+ as TreeRepetition object', () => {
+      const p = new Parser('RuleName |+')
+      const result = parseTreeRepetition(p)
+      expect(result).toEqual({
+        type: 'TreeRepetition',
+        expression: makeNamedRule('RuleName'),
+      })
+    })
+  })
+
+  describe('parseTreeSequence', () => {
+    it('parses Oats Eater|? as TreeSequence object', () => {
+      const p = new Parser('Oats Eater|?')
+      const result = parseTreeSequence(p)
+      expect(result).toEqual({
+        type: 'TreeSequence',
+        expressions: [
+          makeNamedRule('Oats'),
+          {
+            type: 'TreeOption',
+            option: makeNamedRule('Eater'),
+          },
+        ],
+      })
+    })
+  })
+
+  describe('parseTreeOption', () => {
+    it('parses Snakey|? as TreeOption object', () => {
+      const p = new Parser('Snakey|?')
+      const result = parseTreeOption(p)
+      expect(result).toEqual({
+        type: 'TreeOption',
+        option: makeNamedRule('Snakey'),
+      })
     })
   })
 })

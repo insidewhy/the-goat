@@ -177,7 +177,16 @@ export interface TreeJoin extends Ast<'TreeJoin'> {
 }
 
 export interface TreeSequence extends Ast<'TreeSequence'> {
-  expressions: Array<Expression | TreeOption | Predicate>
+  expressions: Array<
+    | Assignment
+    | Join
+    | Lexeme
+    | Repetition
+    | ExpressionLeaf
+    | Predicate
+    | TreeOption
+    | Predicate
+  >
 }
 
 export interface TreeOption extends Ast<'TreeOption'> {
@@ -235,6 +244,9 @@ export const parseExpressionLeaf = alternation(
   sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
   // TODO: more
 )
+
+// TODO:
+export const parseConstant = parseExpressionLeaf
 
 const makeRepetition = (): Repetition => ({ type: 'Repetition' } as Repetition)
 
@@ -334,10 +346,60 @@ export const parseRule = object(
   ),
 )
 
-const makeTreeRule = (): TreeRule => ({ type: 'TreeRule' } as TreeRule)
+const makeTreeOption = (): TreeOption => ({ type: 'TreeOption' } as TreeOption)
 
-// TODO:
-export const parseTreeExpression = parseExpressionLeaf
+export const parseTreeOption = object(
+  makeTreeOption,
+  sequenceCustom<Assignment | Assignment['expression']>()(
+    property('option', parseAssignment),
+    constant('|?'),
+  ),
+)
+
+const makeTreeSequence = (): TreeSequence => ({
+  type: 'TreeSequence',
+  expressions: [],
+})
+
+export const parseTreeSequence = object(
+  makeTreeSequence,
+  atLeastOne(
+    appendProperty(
+      'expressions',
+      alternation(parseTreeOption, parseAssignment, parsePredicate),
+    ),
+  ),
+)
+
+const makeTreeJoin = (): TreeJoin => ({ type: 'TreeJoin' } as TreeJoin)
+
+export const parseTreeJoin = object(
+  makeTreeJoin,
+  sequenceCustom<[string, string]>()(
+    property('expression', parseExpression),
+    constant('|%'),
+    property('joinWith', parseConstant),
+  ),
+)
+
+const makeTreeRepetition = (): TreeRepetition =>
+  ({ type: 'TreeRepetition' } as TreeRepetition)
+
+export const parseTreeRepetition = object(
+  makeTreeRepetition,
+  sequenceCustom<Expression>()(
+    property('expression', parseExpression),
+    constant('|+'),
+  ),
+)
+
+export const parseTreeExpression = alternation(
+  parseTreeRepetition,
+  parseTreeJoin,
+  parseTreeSequence,
+)
+
+const makeTreeRule = (): TreeRule => ({ type: 'TreeRule' } as TreeRule)
 
 export const parseTreeRule = object(
   makeTreeRule,
