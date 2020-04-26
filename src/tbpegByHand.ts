@@ -227,7 +227,15 @@ export const parseExpressionLeaf = alternation(
 )
 
 // TODO:
-export const parseLexeme = parseExpressionLeaf
+export const parseRepetition = parseExpressionLeaf
+
+const makeLexeme = (): Lexeme => ({ type: 'Lexeme', expressions: [] } as Lexeme)
+
+export const parseLexeme = treeJoin(
+  makeLexeme,
+  appendProperty('expressions', parseRepetition),
+  constant('^'),
+)
 
 const makeJoin = (): Join => ({ type: 'Join' } as Join)
 
@@ -263,8 +271,11 @@ export const parseSequence = treeRepetition(
   appendProperty('expressions', parseAssignment),
 )
 
+const makeAlternation = (): Alternation =>
+  ({ type: 'Alternation', expressions: [] } as Alternation)
+
 export const parseAlternation = treeJoin(
-  (): Alternation => ({ type: 'Alternation', expressions: [] } as Alternation),
+  makeAlternation,
   appendProperty('expressions', parseSequence),
   constant('/'),
 )

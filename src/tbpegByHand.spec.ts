@@ -9,6 +9,7 @@ import {
   parseSequence,
   parseAssignment,
   parseJoin,
+  parseLexeme,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -217,6 +218,35 @@ describe('tbpegByHand', () => {
           type: 'RuleName',
           value: 'OtherRule',
         },
+      })
+    })
+  })
+
+  describe('parseLexeme', () => {
+    it('matches TheRuleName and stores RuleName object', () => {
+      const p = new Parser('TheRuleName')
+      const result = parseLexeme(p)
+      expect(result).toEqual({
+        type: 'RuleName',
+        value: 'TheRuleName',
+      })
+    })
+
+    it('matches TheRuleName % OtherRule and stores join object', () => {
+      const p = new Parser('TheRuleName ^ OtherRule')
+      const result = parseLexeme(p)
+      expect(result).toEqual({
+        type: 'Lexeme',
+        expressions: [
+          {
+            type: 'RuleName',
+            value: 'TheRuleName',
+          },
+          {
+            type: 'RuleName',
+            value: 'OtherRule',
+          },
+        ],
       })
     })
   })
