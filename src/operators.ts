@@ -14,6 +14,16 @@ export const constant = (value: string) => (p: Parser): string | undefined => {
   }
 }
 
+export const notChar = (char: string) => (p: Parser): string | undefined => {
+  const { next } = p
+  if (next === char || p.atEof()) {
+    return undefined
+  } else {
+    p.advance()
+    return next
+  }
+}
+
 export const alternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,

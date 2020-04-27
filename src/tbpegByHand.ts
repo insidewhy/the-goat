@@ -18,6 +18,7 @@ import {
   treeOptional,
   treeSequenceCustom,
   asConstant,
+  notChar,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -244,14 +245,61 @@ export const parseGroup = object(
   ),
 )
 
-export const parseExpressionLeaf = alternation(
-  parseGroup,
-  sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
-  // TODO: more
+const makeEscapeSequence = (): EscapeSequence =>
+  ({ type: 'EscapeSequence' } as EscapeSequence)
+
+export const parseEscapeSequence = object(
+  makeEscapeSequence,
+  lexeme(
+    constant('\\'),
+    property(
+      'value',
+      alternation(constant('\\'), constant('n'), constant('"')),
+    ),
+  ),
+)
+
+const makeString = (): String => ({ type: 'String' } as String)
+
+export const parseString = object(
+  makeString,
+  lexeme(
+    constant('"'),
+    property(
+      'value',
+      lexemeAtLeastOne(alternation(parseEscapeSequence, notChar('"'))),
+    ),
+    constant('"'),
+  ),
 )
 
 // TODO:
-export const parseConstant = parseExpressionLeaf
+export const parseSpacingRule = () => undefined
+export const parseAnyCharacter = () => undefined
+export const parseEscapeCode = () => undefined
+export const parseEnum = () => undefined
+export const parseCharacters = () => undefined
+export const parseNotCharacter = () => undefined
+export const parseNext = () => undefined
+
+export const parseConstant = alternation(
+  parseString,
+  parseSpacingRule,
+  parseEscapeSequence,
+)
+
+export const parseExpressionLeaf = alternation(
+  parseGroup,
+  sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
+  parseConstant,
+  parseSpacingRule,
+  parseAnyCharacter,
+  parseEscapeCode,
+  parseEnum,
+  parseCharacters,
+  parseNotCharacter,
+  parseNext,
+)
 
 const makeRepetition = (): Repetition => ({ type: 'Repetition' } as Repetition)
 

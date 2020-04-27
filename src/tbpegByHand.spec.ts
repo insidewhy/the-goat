@@ -17,6 +17,9 @@ import {
   parseTreeSequence,
   parseTreeOption,
   parseTreeRule,
+  parseConstant,
+  parseEscapeSequence,
+  parseString,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -278,9 +281,48 @@ describe('tbpegByHand', () => {
     })
   })
 
+  describe('parseConstant', () => {
+    it('matches "Pumpy"', () => {
+      const p = new Parser('"Pumpy"')
+      const result = parseConstant(p)
+      expect(result).toEqual({
+        type: 'String',
+        value: 'Pumpy',
+      })
+    })
+  })
+
+  describe('parseString', () => {
+    it('matches "oh \\"beard\\""', () => {
+      const p = new Parser('"oh \\"beard\\""')
+      const result = parseString(p)
+      expect(result).toEqual({
+        type: 'String',
+        value: 'oh \\"beard\\"',
+      })
+    })
+  })
+
+  describe('parseEscapeSequence', () => {
+    it('matches \\n', () => {
+      const p = new Parser('\\n')
+      const result = parseEscapeSequence(p)
+      expect(result).toEqual({
+        type: 'EscapeSequence',
+        value: 'n',
+      })
+    })
+
+    it('does not match \\o', () => {
+      const p = new Parser('\\o')
+      const result = parseEscapeSequence(p)
+      expect(result).toEqual(undefined)
+    })
+  })
+
   describe('parseTreeRule', () => {
-    it('parses Tree <= RuleName |% Oats as TreeRule object', () => {
-      const p = new Parser('Tree <= RuleName |% Oats')
+    it('parses Tree <= RuleName |% "Oats" as TreeRule object', () => {
+      const p = new Parser('Tree <= RuleName |% "Oats"')
       const result = parseTreeRule(p)
       expect(result).toEqual({
         type: 'TreeRule',
@@ -288,20 +330,26 @@ describe('tbpegByHand', () => {
         expression: {
           type: 'TreeJoin',
           expression: makeNamedRule('RuleName'),
-          joinWith: makeNamedRule('Oats'),
+          joinWith: {
+            type: 'String',
+            value: 'Oats',
+          },
         },
       })
     })
   })
 
   describe('parseTreeJoin', () => {
-    it('parses RuleName |% Oats as TreeJoin object', () => {
-      const p = new Parser('RuleName |% Oats')
+    it('parses RuleName |% "Oats" as TreeJoin object', () => {
+      const p = new Parser('RuleName |% "Oats"')
       const result = parseTreeJoin(p)
       expect(result).toEqual({
         type: 'TreeJoin',
         expression: makeNamedRule('RuleName'),
-        joinWith: makeNamedRule('Oats'),
+        joinWith: {
+          type: 'String',
+          value: 'Oats',
+        },
       })
     })
   })

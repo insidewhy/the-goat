@@ -437,4 +437,12 @@ describe('operator', () => {
       })
     })
   })
+
+  describe('constant', () => {
+    // TODO
+  })
+
+  describe('notChar', () => {
+    // TODO
+  })
 })

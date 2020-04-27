@@ -42,7 +42,7 @@ Predicate <= predicate:$enum("&!" $as NotPredicate / "&" $as AndPredicate) expre
 Group <= "(" expression:Expression ")"
 
 # expression leafs
-String <= \" ^ value:(EscapeSequence / ! \")^* ^ \"
+String <= \" ^ value:(EscapeSequence / ! \")^+ ^ \"
 EscapeSequence <= \\ ^ ( value:(\\ / "n" / \") )
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
