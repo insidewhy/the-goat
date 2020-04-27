@@ -280,7 +280,11 @@ export const parseEscapeCode = () => undefined
 export const parseEnum = () => undefined
 export const parseCharacters = () => undefined
 export const parseNotCharacter = () => undefined
-export const parseNext = () => undefined
+
+export const parseNext = object(
+  (): Next => ({ type: 'Next' }),
+  constant('$next'),
+)
 
 export const parseConstant = alternation(
   parseString,

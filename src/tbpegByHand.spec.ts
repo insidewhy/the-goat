@@ -20,6 +20,7 @@ import {
   parseConstant,
   parseEscapeSequence,
   parseString,
+  parseNext,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -317,6 +318,16 @@ describe('tbpegByHand', () => {
       const p = new Parser('\\o')
       const result = parseEscapeSequence(p)
       expect(result).toEqual(undefined)
+    })
+  })
+
+  describe('parseNext', () => {
+    it('matches $next', () => {
+      const p = new Parser('$next')
+      const result = parseNext(p)
+      expect(result).toEqual({
+        type: 'Next',
+      })
     })
   })
 
