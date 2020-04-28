@@ -129,6 +129,13 @@ describe('operator', () => {
         expect(value).toEqual(['oh', 'oh', 'oh'])
         expect(p.next).toEqual(':')
       })
+
+      it('returns ["oh", "oh"] for "oh oh " and leaves parser at last space', () => {
+        const p = new Parser('oh oh ')
+        const value = parseOhsUsually(p)
+        expect(value).toEqual(['oh', 'oh'])
+        expect(p.index).toEqual(5)
+      })
     })
   })
 
@@ -251,13 +258,13 @@ describe('operator', () => {
       it('parses "oh bat" as "oh"', () => {
         const p = new Parser('oh bat')
         expect(parseOhNotFollowedByCat(p)).toEqual('oh')
-        expect(p.next).toEqual('b')
+        expect(p.next).toEqual(' ')
       })
 
       it('parses "oh cat" as undefined', () => {
         const p = new Parser('oh cat')
         expect(parseOhNotFollowedByCat(p)).toEqual(undefined)
-        expect(p.next).toEqual('c')
+        expect(p.next).toEqual(' ')
       })
     })
   })
@@ -432,8 +439,7 @@ describe('operator', () => {
       it('parses "s d" as string', () => {
         const p = new Parser('s d')
         expect(parseTreeSequence(p)).toEqual('s')
-        // sequences don't rewind
-        expect(p.next).toEqual('d')
+        expect(p.next).toEqual(' ')
       })
     })
   })
@@ -443,6 +449,14 @@ describe('operator', () => {
   })
 
   describe('notChar', () => {
+    // TODO
+  })
+
+  describe('anyChar', () => {
+    // TODO
+  })
+
+  describe('spacing', () => {
     // TODO
   })
 })

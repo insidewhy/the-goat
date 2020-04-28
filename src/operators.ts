@@ -24,6 +24,27 @@ export const notChar = (char: string) => (p: Parser): string | undefined => {
   }
 }
 
+export const anyChar = () => (p: Parser): string | undefined => {
+  const { next } = p
+  if (p.atEof()) {
+    return undefined
+  } else {
+    p.advance()
+    return next
+  }
+}
+
+export const spacing = () => (p: Parser): boolean | undefined => {
+  const { index } = p
+  p.skipSpacing()
+  return p.index > index ? true : undefined
+}
+
+export const optionalSpacing = () => (p: Parser): true => {
+  p.skipSpacing()
+  return true
+}
+
 export const alternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
@@ -64,6 +85,9 @@ export const zeroOrMore = <T>(rule: ParserOp<T>) => <O>(
       break
     }
   }
+
+  // restore to before final space skip
+  p.restoreIndex(backupIndex)
   return ast
 }
 
@@ -178,15 +202,21 @@ type SequenceReturnType<T extends any[]> = UnwrapOneTuple<
  * See https://github.com/insidewhy/the-goat/commit/1caab09191b49586727d65da918e471e4687cc24
  * for the implementation, wish it could be used.
  */
-export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
-  p: Parser,
-  obj?: O,
-): R | undefined => {
+export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
+  ...rules: T
+) => <O>(p: Parser, obj?: O): R | undefined => {
   const ret: any[] = []
-  for (const rule of rules) {
-    const ruleValue = rule(p, obj)
+  let indexBackup = p.index
+
+  const { length } = rules
+  for (let i = 0; i < length; ++i) {
+    const ruleValue = rules[i](p, obj)
     // predicate or mismatch
     if (typeof ruleValue === 'boolean') {
+      if (spacingBetween) {
+        // restore before spacing for failed predicate
+        p.restoreIndex(indexBackup)
+      }
       if (ruleValue === false) {
         return undefined
       }
@@ -196,10 +226,17 @@ export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
         return undefined
       } else {
         ret.push(ruleValue)
+        if (spacingBetween && ruleValue === '') {
+          // for optional matches that didn't match, erase the whitspace skip
+          p.restoreIndex(indexBackup)
+        }
       }
     }
 
-    p.skipSpacing()
+    if (spacingBetween && i < length - 1) {
+      indexBackup = p.index
+      p.skipSpacing()
+    }
   }
   return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
 }
@@ -319,17 +356,26 @@ export const treeRepetition = <T, O>(
 }
 
 // see comments on sequenceCustom for why this is needed
-export const treeSequenceCustom = <R>() => <O, T extends any[]>(
+export const treeSequenceCustom = <R>(spacingBetween = true) => <
+  O,
+  T extends any[]
+>(
   makeObject: () => O,
   ...rules: T
 ) => (p: Parser): R | O | undefined => {
   const obj = makeObject()
   const ret: any[] = []
   let hasTreeOption = false
+  let indexBackup = p.index
 
-  for (const rule of rules) {
-    const ruleValue = rule(p, obj)
+  const { length } = rules
+  for (let i = 0; i < length; ++i) {
+    const ruleValue = rules[i](p, obj)
     if (typeof ruleValue === 'boolean') {
+      if (spacingBetween) {
+        // restore before space skip
+        p.restoreIndex(indexBackup)
+      }
       if (ruleValue === false) {
         return undefined
       }
@@ -337,14 +383,23 @@ export const treeSequenceCustom = <R>() => <O, T extends any[]>(
     } else {
       if (ruleValue === undefined) {
         return undefined
-      } else if (ruleValue !== '') {
-        if (!hasTreeOption && rule.isTreeOption && ruleValue !== '') {
+      } else if (ruleValue === '') {
+        if (spacingBetween) {
+          // restore before space skip for failed optional match
+          p.restoreIndex(indexBackup)
+        }
+      } else {
+        if (!hasTreeOption && rules[i].isTreeOption && ruleValue !== '') {
           hasTreeOption = true
         }
         ret.push(ruleValue)
       }
     }
-    p.skipSpacing()
+
+    if (spacingBetween && i < length - 1) {
+      indexBackup = p.index
+      p.skipSpacing()
+    }
   }
 
   if (hasTreeOption) {
