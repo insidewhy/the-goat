@@ -21,6 +21,8 @@ import {
   parseEscapeSequence,
   parseString,
   parseNext,
+  parseAsConstant,
+  parseNotCharacter,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -232,6 +234,27 @@ describe('tbpegByHand', () => {
     })
   })
 
+  describe('parseAsConstant', () => {
+    it('matches TheRuleName and stores RuleName object', () => {
+      const p = new Parser('TheRuleName')
+      const result = parseAsConstant(p)
+      expect(result).toEqual(makeNamedRule('TheRuleName'))
+    })
+
+    it('matches TheRuleName $as "blah" and stores AsConstant object', () => {
+      const p = new Parser('TheRuleName $as "blah"')
+      const result = parseAsConstant(p)
+      expect(result).toEqual({
+        type: 'AsConstant',
+        expression: makeNamedRule('TheRuleName'),
+        value: {
+          type: 'String',
+          value: 'blah',
+        },
+      })
+    })
+  })
+
   describe('parseRepetition', () => {
     it('matches TheRuleName and stores RuleName object', () => {
       const p = new Parser('TheRuleName')
@@ -305,12 +328,21 @@ describe('tbpegByHand', () => {
   })
 
   describe('parseEscapeSequence', () => {
-    it('matches \\n', () => {
+    it('matches \\n as newline', () => {
       const p = new Parser('\\n')
       const result = parseEscapeSequence(p)
       expect(result).toEqual({
         type: 'EscapeSequence',
-        value: 'n',
+        value: '\n',
+      })
+    })
+
+    it('matches \\" as "', () => {
+      const p = new Parser('\\"')
+      const result = parseEscapeSequence(p)
+      expect(result).toEqual({
+        type: 'EscapeSequence',
+        value: '"',
       })
     })
 
@@ -318,6 +350,29 @@ describe('tbpegByHand', () => {
       const p = new Parser('\\o')
       const result = parseEscapeSequence(p)
       expect(result).toEqual(undefined)
+    })
+  })
+
+  describe('parseNotCharacter', () => {
+    it('matches ! "."', () => {
+      const p = new Parser('! "."')
+      const result = parseNotCharacter(p)
+      expect(result).toEqual({
+        type: 'NotCharacter',
+        character: '.',
+      })
+    })
+
+    it('matches ! \\', () => {
+      const p = new Parser('! \\\\')
+      const result = parseNotCharacter(p)
+      expect(result).toEqual({
+        type: 'NotCharacter',
+        character: {
+          type: 'EscapeSequence',
+          value: '\\',
+        },
+      })
     })
   })
 

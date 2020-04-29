@@ -19,6 +19,8 @@ import {
   treeSequenceCustom,
   asConstant,
   notChar,
+  anyChar,
+  spacing,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -59,6 +61,7 @@ export type Expression =
   | Join
   | Lexeme
   | Repetition
+  | AsConstant
   | ExpressionLeaf
 
 export interface Alternation extends Ast<'Alternation'> {
@@ -68,6 +71,7 @@ export interface Alternation extends Ast<'Alternation'> {
     | Join
     | Lexeme
     | Repetition
+    | AsConstant
     | ExpressionLeaf
     | Predicate
   >
@@ -75,23 +79,34 @@ export interface Alternation extends Ast<'Alternation'> {
 
 export interface Sequence extends Ast<'Sequence'> {
   expressions: Array<
-    Assignment | Join | Lexeme | Repetition | ExpressionLeaf | Predicate
+    | Assignment
+    | Join
+    | Lexeme
+    | Repetition
+    | AsConstant
+    | ExpressionLeaf
+    | Predicate
   >
 }
 
 export interface Assignment extends Ast<'Assignment'> {
   propertyName: PropertyName
-  expression: Join | Lexeme | Repetition | ExpressionLeaf
+  expression: Join | Lexeme | Repetition | AsConstant | ExpressionLeaf
 }
 
 export interface Join extends Ast<'Join'> {
-  expression: Lexeme | Repetition | ExpressionLeaf
+  expression: Lexeme | Repetition | AsConstant | ExpressionLeaf
   repetition: 'OneOrMore' | 'ZeroOrMore'
-  joinWith: Lexeme | Repetition | ExpressionLeaf
+  joinWith: Lexeme | Repetition | AsConstant | ExpressionLeaf
 }
 
 export interface Lexeme extends Ast<'Lexeme'> {
-  expressions: Array<Repetition | ExpressionLeaf>
+  expressions: Array<Repetition | AsConstant | ExpressionLeaf>
+}
+
+export interface AsConstant extends Ast<'AsConstant'> {
+  expression: Repetition | ExpressionLeaf
+  value: String | EscapeSequence
 }
 
 export interface Repetition extends Ast<'Repetition'> {
@@ -141,7 +156,7 @@ export type Next = Ast<'Next'>
 export type AnyCharacter = Ast<'AnyCharacter'>
 
 export interface NotCharacter extends Ast<'NotCharacter'> {
-  character: string
+  character: string | EscapeSequence
 }
 
 export interface EscapeCode extends Ast<'EscapeCode'> {
@@ -187,6 +202,7 @@ export interface TreeSequence extends Ast<'TreeSequence'> {
     | Assignment
     | Join
     | Lexeme
+    | AsConstant
     | Repetition
     | ExpressionLeaf
     | Predicate
@@ -254,7 +270,11 @@ export const parseEscapeSequence = object(
     constant('\\'),
     property(
       'value',
-      alternation(constant('\\'), constant('n'), constant('"')),
+      alternation(
+        constant('\\'),
+        asConstant(constant('n'), '\n'),
+        constant('"'),
+      ),
     ),
   ),
 )
@@ -279,7 +299,18 @@ export const parseAnyCharacter = () => undefined
 export const parseEscapeCode = () => undefined
 export const parseEnum = () => undefined
 export const parseCharacters = () => undefined
-export const parseNotCharacter = () => undefined
+
+// NotCharacter <= "!" character:(EscapeSequence / \" ^ . ^ \")
+export const parseNotCharacter = object(
+  (): NotCharacter => ({ type: 'NotCharacter' } as NotCharacter),
+  sequenceCustom<string>()(
+    constant('!'),
+    alternation(
+      property('character', parseEscapeSequence),
+      lexeme(constant('"'), property('character', notChar('"')), constant('"')),
+    ),
+  ),
+)
 
 export const parseNext = object(
   (): Next => ({ type: 'Next' }),
@@ -323,11 +354,29 @@ export const parseRepetition = treeSequenceCustom<Repetition['expression']>()(
   ),
 )
 
+const makeAsConstant = (): AsConstant => ({ type: 'AsConstant' } as AsConstant)
+
+// disable automatic whitespace skipping due to use of `spacing`
+export const parseAsConstant = treeSequenceCustom<AsConstant['expression']>(
+  false,
+)(
+  makeAsConstant,
+  property('expression', parseRepetition),
+  treeOptional(
+    sequenceCustom(false)(
+      spacing(),
+      constant('$as'),
+      spacing(),
+      property('value', alternation(parseString, parseEscapeSequence)),
+    ),
+  ),
+)
+
 const makeLexeme = (): Lexeme => ({ type: 'Lexeme', expressions: [] } as Lexeme)
 
 export const parseLexeme = treeJoin(
   makeLexeme,
-  appendProperty('expressions', parseRepetition),
+  appendProperty('expressions', parseAsConstant),
   constant('^'),
 )
 
