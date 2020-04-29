@@ -214,7 +214,7 @@ export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
     // predicate or mismatch
     if (typeof ruleValue === 'boolean') {
       if (spacingBetween) {
-        // restore before spacing for failed predicate
+        // restore before predicate
         p.restoreIndex(indexBackup)
       }
       if (ruleValue === false) {
@@ -226,7 +226,7 @@ export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
         return undefined
       } else {
         ret.push(ruleValue)
-        if (spacingBetween && ruleValue === '') {
+        if (spacingBetween && ruleValue.length === 0) {
           // for optional matches that didn't match, erase the whitspace skip
           p.restoreIndex(indexBackup)
         }
@@ -373,7 +373,7 @@ export const treeSequenceCustom = <R>(spacingBetween = true) => <
     const ruleValue = rules[i](p, obj)
     if (typeof ruleValue === 'boolean') {
       if (spacingBetween) {
-        // restore before space skip
+        // restore before space skip for predicates
         p.restoreIndex(indexBackup)
       }
       if (ruleValue === false) {
@@ -383,9 +383,9 @@ export const treeSequenceCustom = <R>(spacingBetween = true) => <
     } else {
       if (ruleValue === undefined) {
         return undefined
-      } else if (ruleValue === '') {
+      } else if (ruleValue.length === 0) {
         if (spacingBetween) {
-          // restore before space skip for failed optional match
+          // for optional matches that didn't match, erase the whitspace skip
           p.restoreIndex(indexBackup)
         }
       } else {
