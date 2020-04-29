@@ -16,15 +16,16 @@ Sequence <= expressions:($next / Predicate)|+
 Assignment <= (propertyName:PropertyName ":")|? expression:$next
 Join <=
   expression:$next (
-    repetition:$enum("%+" $as OneOrMore / "%" $as ZeroOrMore)
+    repetition:("%+" $as "OneOrMore" / "%" $as "ZeroOrMore")
     joinWith:$next
   )|?
 Lexeme <= expressions:$next |% "^"
-Repetition <= expression:$next repetition:$enum(
-  "+" $as OneOrMore /
-  "*" $as ZeroOrMore /
-  "^+" $as LexemeOneOrMore /
-  "^*" $as LexemeZeroOrMore /
+AsConstant <= expression:$next (~ "$as" ~ value:(String / EscapeSequence))|?
+Repetition <= expression:$next repetition:(
+  "+" $as "OneOrMore" /
+  "*" $as "ZeroOrMore" /
+  "^+" $as "LexemeOneOrMore" /
+  "^*" $as "LexemeZeroOrMore"
 )|?
 ExpressionLeaf <-
   Group /
@@ -32,29 +33,26 @@ ExpressionLeaf <-
   Constant /
   AnyCharacter /
   EscapeCode /
-  Enum /
   Characters /
   NotCharacter /
   Next
 
-Predicate <= predicate:$enum("&!" $as NotPredicate / "&" $as AndPredicate) expression:ExpressionLeaf
+Predicate <= predicate:("&!" $as "NotPredicate" / "&" $as "AndPredicate") expression:ExpressionLeaf
 
 Group <= "(" expression:Expression ")"
 
 # expression leafs
 String <= \" ^ value:(EscapeSequence / ! \")^+ ^ \"
-EscapeSequence <= \\ ^ ( value:(\\ / "n" / \") )
+EscapeSequence <= \\ ^ ( value:(\\ / "n" $as \n / \") )
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
 AnyCharacter <= "."
-NotCharacter <= "!" character:(EscapeSequence / \" ^ . ^ \")
+NotCharacter <= "!" (character:EscapeSequence / \" ^ character:(! \") ^ \")
 EscapeCode <= \\ ^ code:("w" / "s")
-Enum <= "$enum" "(" expression:(EnumValAssignment %+ "/") ")"
-EnumValAssignment <= match:Constant ~ "$as" ~ enumValue:[a-zA-Z_]+
 
 # expression leaf for character range
-Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / \w)+ ^ "]"
+Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / .)^+ ^ "]"
 CharacterRange <= (from:\w) ^ "-" ^ (to:\w)
 
 # Tree rules
