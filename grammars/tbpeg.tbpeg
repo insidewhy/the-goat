@@ -35,18 +35,22 @@ ExpressionLeaf <-
   EscapeCode /
   Characters /
   NotCharacter /
-  Next
+  Next /
+  ToString
+
+ToString <= "$string" ExpressionLeaf
 
 Predicate <= predicate:("&!" $as "NotPredicate" / "&" $as "AndPredicate") expression:ExpressionLeaf
 
 Group <= "(" expression:Expression ")"
 
 # expression leafs
-String <= \" ^ value:(EscapeSequence / ! \")^+ ^ \"
+String <= \" ^ value:($string EscapeSequence / ! \")^+ ^ \"
 EscapeSequence <= \\ ^ ( value:(\\ / "n" $as \n / \") )
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
+ToString <= "$string" expression:ExpressionLeaf
 AnyCharacter <= "."
 NotCharacter <= "!" (character:EscapeSequence / \" ^ character:(! \") ^ \")
 EscapeCode <= \\ ^ code:("w" / "s")

@@ -121,6 +121,7 @@ export interface Repetition extends Ast<'Repetition'> {
 export type ExpressionLeaf =
   | Group
   | RuleName
+  | Constant
   | SpacingRule
   | EscapeSequence
   | AnyCharacter
@@ -128,6 +129,7 @@ export type ExpressionLeaf =
   | EscapeCode
   | Characters
   | Next
+  | ToString
 
 export interface Group extends Ast<'Group'> {
   expression: Expression
@@ -151,6 +153,10 @@ export type SpacingRule = Ast<'SpacingRule'>
 export type Constant = String | SpacingRule | EscapeSequence
 
 export type Next = Ast<'Next'>
+
+export interface ToString extends Ast<'ToString'> {
+  expression: ExpressionLeaf
+}
 
 export type AnyCharacter = Ast<'AnyCharacter'>
 
@@ -294,12 +300,12 @@ export const parseSpacingRule = object(
 )
 
 export const parseAnyCharacter = object(
-  () => ({ type: 'AnyCharacter' }),
+  (): AnyCharacter => ({ type: 'AnyCharacter' }),
   constant('.'),
 )
 
 export const parseEscapeCode = object(
-  () => ({ type: 'EscapeCode' }),
+  (): EscapeCode => ({ type: 'EscapeCode' } as EscapeCode),
   lexeme(
     constant('\\'),
     property('code', alternation(constant('w'), constant('s'))),
@@ -307,7 +313,7 @@ export const parseEscapeCode = object(
 )
 
 export const parseCharacterRange = object(
-  () => ({ type: 'CharacterRange' }),
+  (): CharacterRange => ({ type: 'CharacterRange' } as CharacterRange),
   lexeme(
     property('from', wordChar()),
     constant('-'),
@@ -348,6 +354,18 @@ export const parseNext = object(
   constant('$next'),
 )
 
+export const parseToString = object(
+  (): ToString => ({ type: 'ToString' } as ToString),
+  sequence(
+    constant('$string'),
+    property(
+      'expression',
+      (p: Parser): ExpressionLeaf | undefined =>
+        parseExpressionLeaf(p) as ExpressionLeaf | undefined,
+    ),
+  ),
+)
+
 export const parseConstant = alternation(
   parseString,
   parseSpacingRule,
@@ -363,6 +381,7 @@ export const parseExpressionLeaf = alternation(
   parseCharacters,
   parseNotCharacter,
   parseNext,
+  parseToString,
 )
 
 const makeRepetition = (): Repetition => ({ type: 'Repetition' } as Repetition)

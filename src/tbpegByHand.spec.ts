@@ -27,6 +27,7 @@ import {
   parseAnyCharacter,
   parseEscapeCode,
   parseCharacters,
+  parseToString,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -127,6 +128,34 @@ describe('tbpegByHand', () => {
           },
           makeNamedRule('OtherRule'),
         ],
+      })
+    })
+
+    it('matches $string RuleName', () => {
+      const p = new Parser('$string RuleName Thing')
+      const result = parseAlternation(p)
+      expect(result).toEqual({
+        type: 'Sequence',
+        expressions: [
+          {
+            type: 'ToString',
+            expression: makeNamedRule('RuleName'),
+          },
+          makeNamedRule('Thing'),
+        ],
+      })
+    })
+
+    it('matches $string RuleName^+', () => {
+      const p = new Parser('$string RuleName^+')
+      const result = parseAlternation(p)
+      expect(result).toEqual({
+        type: 'Repetition',
+        repetition: 'LexemeOneOrMore',
+        expression: {
+          type: 'ToString',
+          expression: makeNamedRule('RuleName'),
+        },
       })
     })
   })
@@ -419,6 +448,17 @@ describe('tbpegByHand', () => {
       const result = parseNext(p)
       expect(result).toEqual({
         type: 'Next',
+      })
+    })
+  })
+
+  describe('parseToString', () => {
+    it('matches $string RuleName', () => {
+      const p = new Parser('$string RuleName')
+      const result = parseToString(p)
+      expect(result).toEqual({
+        type: 'ToString',
+        expression: makeNamedRule('RuleName'),
       })
     })
   })
