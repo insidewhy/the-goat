@@ -19,8 +19,8 @@ import {
   treeSequenceCustom,
   asConstant,
   notChar,
-  anyChar,
   spacing,
+  wordChar,
 } from './operators'
 
 export type Grammar = Array<TreeRule | Rule>
@@ -126,7 +126,6 @@ export type ExpressionLeaf =
   | AnyCharacter
   | NotCharacter
   | EscapeCode
-  | Enum
   | Characters
   | Next
 
@@ -161,10 +160,6 @@ export interface NotCharacter extends Ast<'NotCharacter'> {
 
 export interface EscapeCode extends Ast<'EscapeCode'> {
   code: string
-}
-
-export interface Enum extends Ast<'Enum'> {
-  expression: EnumValAssignment[]
 }
 
 export interface EnumValAssignment extends Ast<'EnumValAssignment'> {
@@ -293,14 +288,50 @@ export const parseString = object(
   ),
 )
 
-// TODO:
-export const parseSpacingRule = () => undefined
-export const parseAnyCharacter = () => undefined
-export const parseEscapeCode = () => undefined
-export const parseEnum = () => undefined
-export const parseCharacters = () => undefined
+export const parseSpacingRule = object(
+  () => ({ type: 'SpacingRule' }),
+  constant('~'),
+)
 
-// NotCharacter <= "!" character:(EscapeSequence / \" ^ . ^ \")
+export const parseAnyCharacter = object(
+  () => ({ type: 'AnyCharacter' }),
+  constant('.'),
+)
+
+export const parseEscapeCode = object(
+  () => ({ type: 'EscapeCode' }),
+  lexeme(
+    constant('\\'),
+    property('code', alternation(constant('w'), constant('s'))),
+  ),
+)
+
+export const parseCharacterRange = object(
+  () => ({ type: 'CharacterRange' }),
+  lexeme(
+    property('from', wordChar()),
+    constant('-'),
+    property('to', wordChar()),
+  ),
+)
+
+const makeCharacters = (): Characters => ({ type: 'Characters', matches: [] })
+
+export const parseCharacters = object(
+  makeCharacters,
+  lexeme(
+    constant('['),
+    property(
+      'matches',
+      // TODO: this currently matches as a string
+      lexemeAtLeastOne(
+        alternation(parseCharacterRange, parseEscapeCode, parseEscapeSequence),
+      ),
+    ),
+    constant(']'),
+  ),
+)
+
 export const parseNotCharacter = object(
   (): NotCharacter => ({ type: 'NotCharacter' } as NotCharacter),
   sequenceCustom<string>()(
@@ -327,10 +358,8 @@ export const parseExpressionLeaf = alternation(
   parseGroup,
   sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
   parseConstant,
-  parseSpacingRule,
   parseAnyCharacter,
   parseEscapeCode,
-  parseEnum,
   parseCharacters,
   parseNotCharacter,
   parseNext,

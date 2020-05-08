@@ -23,6 +23,10 @@ import {
   parseNext,
   parseAsConstant,
   parseNotCharacter,
+  parseSpacingRule,
+  parseAnyCharacter,
+  parseEscapeCode,
+  parseCharacters,
 } from './tbpegByHand'
 
 class Parser extends AbstractParser {
@@ -324,6 +328,39 @@ describe('tbpegByHand', () => {
         type: 'String',
         value: 'oh \\"beard\\"',
       })
+    })
+  })
+
+  describe('parseSpacingRule', () => {
+    it('matches "~"', () => {
+      const p = new Parser('~')
+      const result = parseSpacingRule(p)
+      expect(result).toEqual({ type: 'SpacingRule' })
+    })
+  })
+
+  describe('parseAnyCharacter', () => {
+    it('matches "."', () => {
+      const p = new Parser('.')
+      const result = parseAnyCharacter(p)
+      expect(result).toEqual({ type: 'AnyCharacter' })
+    })
+  })
+
+  describe('parseEscapeCode', () => {
+    it('matches "\\w"', () => {
+      const p = new Parser('\\w')
+      const result = parseEscapeCode(p)
+      expect(result).toEqual({ type: 'EscapeCode', code: 'w' })
+    })
+  })
+
+  describe('parseCharacters', () => {
+    // see comment against lexemeAtLeastOne
+    xit('matches [a-z]', () => {
+      const p = new Parser('[a-z]')
+      const result = parseCharacters(p)
+      expect(result).toEqual([{ type: 'CharacterRange', from: 'a', to: 'z' }])
     })
   })
 
