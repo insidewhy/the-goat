@@ -20,6 +20,7 @@ import {
   treeSequence,
   treeOptional,
   asConstant,
+  wordChar,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -454,6 +455,32 @@ describe('operator', () => {
 
   describe('anyChar', () => {
     // TODO
+  })
+
+  describe('wordChar', () => {
+    const parseWordChar = wordChar()
+
+    it('parses "a" as string', () => {
+      const p = new Parser('a')
+      expect(parseWordChar(p)).toEqual('a')
+    })
+
+    it('parses "5" as string', () => {
+      const p = new Parser('5')
+      expect(parseWordChar(p)).toEqual('5')
+    })
+
+    it('parses "J" as string and leaves parser at o', () => {
+      const p = new Parser('Jo')
+      expect(parseWordChar(p)).toEqual('J')
+      expect(p.next).toEqual('o')
+    })
+
+    it('parses "@" as undefined', () => {
+      const p = new Parser('@')
+      expect(parseWordChar(p)).toEqual(undefined)
+      expect(p.next).toEqual('@')
+    })
   })
 
   describe('spacing', () => {

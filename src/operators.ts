@@ -25,12 +25,31 @@ export const notChar = (char: string) => (p: Parser): string | undefined => {
 }
 
 export const anyChar = () => (p: Parser): string | undefined => {
-  const { next } = p
   if (p.atEof()) {
     return undefined
   } else {
+    const { next } = p
     p.advance()
     return next
+  }
+}
+
+export const wordChar = () => (p: Parser): string | undefined => {
+  if (p.atEof()) {
+    return undefined
+  }
+
+  // TODO: unicode support etc.
+  const { next } = p
+  if (
+    (next >= '0' && next <= '9') ||
+    (next >= 'a' && next <= 'z') ||
+    (next >= 'A' && next <= 'Z')
+  ) {
+    p.advance()
+    return next
+  } else {
+    return undefined
   }
 }
 
@@ -141,6 +160,7 @@ export const lexeme = <T extends any[]>(...rules: T) => <O>(
   return p.data.slice(start, p.index)
 }
 
+// TODO: need a non-string version
 export const lexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
