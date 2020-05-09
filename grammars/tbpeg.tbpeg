@@ -13,13 +13,13 @@ Rule <= name:RuleName "<-" expression:Expression
 Expression <- $next
 Alternation <= expressions:$next |% "/"
 Sequence <= expressions:($next / Predicate)|+
-Assignment <= (propertyName:PropertyName ":")|? expression:$next
 Join <=
   expression:$next (
     repetition:("%+" $as "OneOrMore" / "%" $as "ZeroOrMore")
     joinWith:$next
   )|?
 Lexeme <= expressions:$next |% "^"
+Assignment <= (propertyName:PropertyName ":")|? expression:$next
 AsConstant <= expression:$next (~ "$as" ~ value:(String / EscapeSequence))|?
 Repetition <= expression:$next repetition:(
   "+" $as "OneOrMore" /
@@ -45,8 +45,8 @@ Predicate <= predicate:("&!" $as "NotPredicate" / "&" $as "AndPredicate") expres
 Group <= "(" expression:Expression ")"
 
 # expression leafs
-String <= \" ^ (value:($string EscapeSequence / ! \")^+) ^ \"
-EscapeSequence <= \\ ^ ( value:(\\ / "n" $as \n / \") )
+String <= \" ^ value:($string EscapeSequence / ! \")^+ ^ \"
+EscapeSequence <= \\ ^ value:(\\ / "n" $as \n / \")
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
@@ -57,7 +57,7 @@ EscapeCode <= \\ ^ code:("w" / "s")
 
 # expression leaf for character range
 Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / .)^+ ^ "]"
-CharacterRange <= (from:\w) ^ "-" ^ (to:\w)
+CharacterRange <= from:\w ^ "-" ^ to:\w
 
 # Tree rules
 TreeRule <= name:RuleName "<=" expression:TreeExpression
@@ -66,5 +66,5 @@ TreeExpression <- TreeRepetition / TreeJoin / TreeSequence
 TreeRepetition <= expression:Expression "|+"
 TreeJoin <= expression:Expression "|%" joinWith:Constant
 
-TreeSequence <= expressions:(TreeOption / Assignment / Predicate)+
-TreeOption <= option:Assignment "|?"
+TreeSequence <= expressions:(TreeOption / Join / Predicate)+
+TreeOption <= option:Join "|?"

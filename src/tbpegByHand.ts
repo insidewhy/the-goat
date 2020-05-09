@@ -57,21 +57,21 @@ export type Expression =
   | Alternation
   | Sequence
   | Predicate
-  | Assignment
   | Join
   | Lexeme
-  | Repetition
+  | Assignment
   | AsConstant
+  | Repetition
   | ExpressionLeaf
 
 export interface Alternation extends Ast<'Alternation'> {
   expressions: Array<
     | Sequence
-    | Assignment
     | Join
     | Lexeme
-    | Repetition
+    | Assignment
     | AsConstant
+    | Repetition
     | ExpressionLeaf
     | Predicate
   >
@@ -79,29 +79,29 @@ export interface Alternation extends Ast<'Alternation'> {
 
 export interface Sequence extends Ast<'Sequence'> {
   expressions: Array<
-    | Assignment
     | Join
     | Lexeme
-    | Repetition
+    | Assignment
     | AsConstant
+    | Repetition
     | ExpressionLeaf
     | Predicate
   >
 }
 
-export interface Assignment extends Ast<'Assignment'> {
-  propertyName: PropertyName
-  expression: Join | Lexeme | Repetition | AsConstant | ExpressionLeaf
-}
-
 export interface Join extends Ast<'Join'> {
-  expression: Lexeme | Repetition | AsConstant | ExpressionLeaf
+  expression: Lexeme | Assignment | AsConstant | Repetition | ExpressionLeaf
   repetition: 'OneOrMore' | 'ZeroOrMore'
-  joinWith: Lexeme | Repetition | AsConstant | ExpressionLeaf
+  joinWith: Lexeme | Assignment | AsConstant | Repetition | ExpressionLeaf
 }
 
 export interface Lexeme extends Ast<'Lexeme'> {
-  expressions: Array<Repetition | AsConstant | ExpressionLeaf>
+  expressions: Array<Assignment | AsConstant | Repetition | ExpressionLeaf>
+}
+
+export interface Assignment extends Ast<'Assignment'> {
+  propertyName: PropertyName
+  expression: AsConstant | Repetition | ExpressionLeaf
 }
 
 export interface AsConstant extends Ast<'AsConstant'> {
@@ -200,15 +200,14 @@ export interface TreeJoin extends Ast<'TreeJoin'> {
 
 export interface TreeSequence extends Ast<'TreeSequence'> {
   expressions: Array<
-    | Assignment
     | Join
     | Lexeme
+    | Assignment
     | AsConstant
     | Repetition
     | ExpressionLeaf
     | Predicate
     | TreeOption
-    | Predicate
   >
 }
 
@@ -420,11 +419,21 @@ export const parseAsConstant = treeSequenceCustom<AsConstant['expression']>(
   ),
 )
 
+const makeAssignment = (): Assignment => ({ type: 'Assignment' } as Assignment)
+
+export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
+  makeAssignment,
+  treeOptional(
+    sequence(property('propertyName', parsePropertyName), constant(':')),
+  ),
+  property('expression', parseAsConstant),
+)
+
 const makeLexeme = (): Lexeme => ({ type: 'Lexeme', expressions: [] } as Lexeme)
 
 export const parseLexeme = treeJoin(
   makeLexeme,
-  appendProperty('expressions', parseAsConstant),
+  appendProperty('expressions', parseAssignment),
   constant('^'),
 )
 
@@ -447,16 +456,6 @@ export const parseJoin = treeSequenceCustom<Join['expression']>()(
   ),
 )
 
-const makeAssignment = (): Assignment => ({ type: 'Assignment' } as Assignment)
-
-export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
-  makeAssignment,
-  treeOptional(
-    sequence(property('propertyName', parsePropertyName), constant(':')),
-  ),
-  property('expression', parseJoin),
-)
-
 const makePredicate = (): Predicate => ({ type: 'Predicate' } as Predicate)
 
 export const parsePredicate = object(
@@ -475,7 +474,7 @@ export const parsePredicate = object(
 
 export const parseSequence = treeRepetition(
   (): Sequence => ({ type: 'Sequence', expressions: [] } as Sequence),
-  appendProperty('expressions', alternation(parseAssignment, parsePredicate)),
+  appendProperty('expressions', alternation(parseJoin, parsePredicate)),
 )
 
 const makeAlternation = (): Alternation =>
@@ -520,7 +519,7 @@ export const parseTreeSequence = object(
   atLeastOne(
     appendProperty(
       'expressions',
-      alternation(parseTreeOption, parseAssignment, parsePredicate),
+      alternation(parseTreeOption, parseJoin, parsePredicate),
     ),
   ),
 )
