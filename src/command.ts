@@ -39,6 +39,11 @@ export async function run(): Promise<void> {
       throw new Error(`Failed to parse: ${str}`)
     }
     console.log(JSON.stringify(ast, null, 2))
+
+    p.skipSpacing()
+    if (!p.atEof()) {
+      console.warn(`Partial match up to ${p.index} for: ${str}`)
+    }
   })
 }
 
