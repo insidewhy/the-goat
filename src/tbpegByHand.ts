@@ -28,9 +28,9 @@ export type Grammar = Array<TreeRule | Rule>
 export class GrammarParser extends Parser {
   skipSpacing(): void {
     for (
-      const { next } = this;
+      let { next } = this;
       this.hasData() && (next === ' ' || next === '\t' || next === '\n');
-      this.advance()
+      this.advance(), next = this.next
     ) {}
   }
 

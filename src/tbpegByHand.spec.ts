@@ -1,5 +1,5 @@
-import { Parser as AbstractParser } from './parser'
 import {
+  GrammarParser as Parser,
   parseRuleName,
   parsePropertyName,
   parseRule,
@@ -29,17 +29,6 @@ import {
   parseCharacters,
   parseToString,
 } from './tbpegByHand'
-
-class Parser extends AbstractParser {
-  skipSpacing(): void {
-    // TODO: generate this as the generator would
-    for (
-      let { next } = this;
-      this.hasData() && (next === ' ' || next === '\t' || next === '\n');
-      this.advance(), next = this.next
-    ) {}
-  }
-}
 
 const makeNamedRule = (name: string): RuleName => ({
   type: 'RuleName',
@@ -78,7 +67,7 @@ describe('tbpegByHand', () => {
   })
 
   describe('parseRule', () => {
-    it('matches Name <= Other', () => {
+    it('matches Name <- Other', () => {
       const p = new Parser('Name <- Other')
       const result = parseRule(p)
       expect(result).toEqual({

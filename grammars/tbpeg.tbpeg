@@ -45,7 +45,7 @@ Predicate <= predicate:("&!" $as "NotPredicate" / "&" $as "AndPredicate") expres
 Group <= "(" expression:Expression ")"
 
 # expression leafs
-String <= \" ^ value:($string EscapeSequence / ! \")^+ ^ \"
+String <= \" ^ (value:($string EscapeSequence / ! \")^+) ^ \"
 EscapeSequence <= \\ ^ ( value:(\\ / "n" $as \n / \") )
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence

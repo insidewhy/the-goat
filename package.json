@@ -35,10 +35,13 @@
     "validate": "yarn test && yarn lint && yarn validate-prettiness",
     "jest-watch": "yarn jest --watchAll"
   },
-  "dependencies": {},
+  "dependencies": {
+    "yargs": "^15.3.1"
+  },
   "devDependencies": {
     "@types/jest": "25.2.1",
     "@types/node": "12.12.37",
+    "@types/yargs": "^15.0.4",
     "@typescript-eslint/eslint-plugin": "2.31.0",
     "@typescript-eslint/parser": "2.31.0",
     "concurrently": "5.2.0",
