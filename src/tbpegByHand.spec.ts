@@ -242,11 +242,13 @@ describe('tbpegByHand', () => {
   })
 
   describe('parseCharacters', () => {
-    // see comment against lexemeAtLeastOne
-    xit('matches [a-z]', () => {
+    it('matches [a-z]', () => {
       const p = new Parser('[a-z]')
       const result = parseCharacters(p)
-      expect(result).toEqual([{ type: 'CharacterRange', from: 'a', to: 'z' }])
+      expect(result).toEqual({
+        type: 'Characters',
+        matches: [{ type: 'CharacterRange', from: 'a', to: 'z' }],
+      })
     })
   })
 

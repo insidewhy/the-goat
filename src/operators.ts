@@ -160,14 +160,35 @@ export const lexeme = <T extends any[]>(...rules: T) => <O>(
   return p.data.slice(start, p.index)
 }
 
-// TODO: need a non-string version
-export const lexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
+/**
+ * Like lexemeAtLeastOne but always return a string AST element.
+ */
+export const stringLexemeAtLeastOne = <T>(rule: ParserOp<T>) => <O>(
   p: Parser,
   obj?: O,
 ): string | undefined => {
   const startIndex = p.index
   while (p.hasData() && rule(p, obj) !== undefined) {}
   return p.index === startIndex ? undefined : p.data.slice(startIndex, p.index)
+}
+
+export const lexemeAtLeastOne = <T>(rule: ParserOp<T>) => {
+  return <O>(p: Parser, obj?: O): T[] | undefined => {
+    const ast: T[] = []
+    let backupIndex = p.index
+    while (p.hasData()) {
+      const ruleAst = rule(p, obj)
+      if (ruleAst !== undefined) {
+        ast.push(ruleAst)
+        backupIndex = p.index
+      } else {
+        p.restoreIndex(backupIndex)
+        break
+      }
+    }
+
+    return ast.length > 0 ? ast : undefined
+  }
 }
 
 export const property = <K extends string, T>(

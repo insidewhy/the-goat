@@ -9,6 +9,7 @@ import {
   lexeme,
   characterRange,
   lexemeAtLeastOne,
+  stringLexemeAtLeastOne,
   sequence,
   notPredicate,
   sequenceCustom,
@@ -223,7 +224,7 @@ export const parseRuleName = object(
     'value',
     lexeme(
       characterRange('A', 'Z'),
-      lexemeAtLeastOne(
+      stringLexemeAtLeastOne(
         alternation(
           characterRange('a', 'z'),
           characterRange('A', 'Z'),
@@ -237,7 +238,7 @@ export const parseRuleName = object(
 
 export const parsePropertyName = lexeme(
   alternation(characterRange('a', 'z'), constant('_')),
-  lexemeAtLeastOne(
+  stringLexemeAtLeastOne(
     alternation(
       characterRange('a', 'z'),
       characterRange('A', 'Z'),
@@ -287,7 +288,7 @@ export const parseString = object(
     constant('"'),
     property(
       'value',
-      lexemeAtLeastOne(alternation(parseEscapeSequence, notChar('"'))),
+      stringLexemeAtLeastOne(alternation(parseEscapeSequence, notChar('"'))),
     ),
     constant('"'),
   ),
@@ -328,7 +329,6 @@ export const parseCharacters = object(
     constant('['),
     property(
       'matches',
-      // TODO: this currently matches as a string
       lexemeAtLeastOne(
         alternation(parseCharacterRange, parseEscapeCode, parseEscapeSequence),
       ),

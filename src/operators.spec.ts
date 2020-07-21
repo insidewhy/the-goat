@@ -6,7 +6,7 @@ import {
   object,
   characterRange,
   lexeme,
-  lexemeAtLeastOne,
+  stringLexemeAtLeastOne,
   sequence,
   notPredicate,
   sequenceCustom,
@@ -21,6 +21,7 @@ import {
   treeOptional,
   asConstant,
   wordChar,
+  lexemeAtLeastOne,
 } from './operators'
 import { Parser as AbstractParser } from './parser'
 
@@ -176,9 +177,9 @@ describe('operator', () => {
     })
   })
 
-  describe('lexemeAtLeastOne', () => {
+  describe('stringLexemeAtLeastOne', () => {
     describe('[a-dm-z]^+', () => {
-      const parseMultipleRanges = lexemeAtLeastOne(
+      const parseMultipleRanges = stringLexemeAtLeastOne(
         alternation(characterRange('a', 'd'), characterRange('m', 'z')),
       )
 
@@ -186,6 +187,31 @@ describe('operator', () => {
         const p = new Parser('annaf')
         expect(parseMultipleRanges(p)).toEqual('anna')
         expect(p.next).toEqual('f')
+      })
+    })
+  })
+
+  describe('lexemeAtLeastOne', () => {
+    const parseMutlipleObjects = lexemeAtLeastOne(
+      object(() => ({ value: '' }), property('value', constant('oh'))),
+    )
+
+    describe('(value:"oh")^+', () => {
+      it('parses multiple objects without spaces between', () => {
+        const p = new Parser('ohoh')
+        const result = parseMutlipleObjects(p)
+        expect(result).toEqual([{ value: 'oh' }, { value: 'oh' }])
+      })
+
+      it('parses up to the first space', () => {
+        const p = new Parser('ohohoh oh')
+        const result = parseMutlipleObjects(p)
+        expect(result).toEqual([
+          { value: 'oh' },
+          { value: 'oh' },
+          { value: 'oh' },
+        ])
+        expect(p.next).toEqual(' ')
       })
     })
   })
