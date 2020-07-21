@@ -46,7 +46,7 @@ Group <= "(" expression:Expression ")"
 
 # expression leafs
 String <= \" ^ value:($string EscapeSequence / ! \")^+ ^ \"
-EscapeSequence <= \\ ^ value:(\\ / "n" $as \n / \")
+EscapeSequence <= \\ ^ value:(\\ / "n" $as \n / \" / \[ / \])
 SpacingRule <= "~"
 Constant <- String / SpacingRule / EscapeSequence
 Next <= "$next"
@@ -56,7 +56,7 @@ NotCharacter <= "!" (character:EscapeSequence / \" ^ character:(! \") ^ \")
 EscapeCode <= \\ ^ code:("w" / "s")
 
 # expression leaf for character range
-Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / .)^+ ^ "]"
+Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / ! \])^+ ^ "]"
 CharacterRange <= from:\w ^ "-" ^ to:\w
 
 # Tree rules

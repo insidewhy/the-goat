@@ -275,6 +275,8 @@ export const parseEscapeSequence = object(
         constant('\\'),
         asConstant(constant('n'), '\n'),
         constant('"'),
+        constant('['),
+        constant(']'),
       ),
     ),
   ),
@@ -330,7 +332,12 @@ export const parseCharacters = object(
     property(
       'matches',
       lexemeAtLeastOne(
-        alternation(parseCharacterRange, parseEscapeCode, parseEscapeSequence),
+        alternation(
+          parseCharacterRange,
+          parseEscapeCode,
+          parseEscapeSequence,
+          notChar(']'),
+        ),
       ),
     ),
     constant(']'),
