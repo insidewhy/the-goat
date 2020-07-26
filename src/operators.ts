@@ -59,11 +59,6 @@ export const spacing = () => (p: Parser): boolean | undefined => {
   return p.index > index ? true : undefined
 }
 
-export const optionalSpacing = () => (p: Parser): true => {
-  p.skipSpacing()
-  return true
-}
-
 export const alternation = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
