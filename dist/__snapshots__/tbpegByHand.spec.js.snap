@@ -1,0 +1,1381 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tbpegByHand parse expression matches: Alternation <= expressions:$next |% "/" 1`] = `
+Object {
+  "expression": Object {
+    "expression": Object {
+      "expression": Object {
+        "type": "Next",
+      },
+      "propertyName": "expressions",
+      "type": "Assignment",
+    },
+    "joinWith": Object {
+      "type": "String",
+      "value": "/",
+    },
+    "type": "TreeJoin",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Alternation",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: AnyCharacter <= "." 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": ".",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "AnyCharacter",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: AsConstant <= expression:$next (~ "$as" ~ value:(String / EscapeSequence))|? 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "Next",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+      Object {
+        "option": Object {
+          "expression": Object {
+            "expressions": Array [
+              Object {
+                "type": "SpacingRule",
+              },
+              Object {
+                "type": "String",
+                "value": "$as",
+              },
+              Object {
+                "type": "SpacingRule",
+              },
+              Object {
+                "expression": Object {
+                  "expression": Object {
+                    "expressions": Array [
+                      Object {
+                        "type": "RuleName",
+                        "value": "String",
+                      },
+                      Object {
+                        "type": "RuleName",
+                        "value": "EscapeSequence",
+                      },
+                    ],
+                    "type": "Alternation",
+                  },
+                  "type": "Group",
+                },
+                "propertyName": "value",
+                "type": "Assignment",
+              },
+            ],
+            "type": "Sequence",
+          },
+          "type": "Group",
+        },
+        "type": "TreeOption",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "AsConstant",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Assignment <= (propertyName:PropertyName ":")|? expression:$next 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "option": Object {
+          "expression": Object {
+            "expressions": Array [
+              Object {
+                "expression": Object {
+                  "type": "RuleName",
+                  "value": "PropertyName",
+                },
+                "propertyName": "propertyName",
+                "type": "Assignment",
+              },
+              Object {
+                "type": "String",
+                "value": ":",
+              },
+            ],
+            "type": "Sequence",
+          },
+          "type": "Group",
+        },
+        "type": "TreeOption",
+      },
+      Object {
+        "expression": Object {
+          "type": "Next",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Assignment",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: CharacterRange <= from:\\w ^ "-" ^ to:\\w 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expressions": Array [
+          Object {
+            "expression": Object {
+              "code": "w",
+              "type": "EscapeCode",
+            },
+            "propertyName": "from",
+            "type": "Assignment",
+          },
+          Object {
+            "type": "String",
+            "value": "-",
+          },
+          Object {
+            "expression": Object {
+              "code": "w",
+              "type": "EscapeCode",
+            },
+            "propertyName": "to",
+            "type": "Assignment",
+          },
+        ],
+        "type": "Lexeme",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "CharacterRange",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Characters <= "[" ^ matches:(CharacterRange / EscapeCode / EscapeSequence / ! \\])^+ ^ "]" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expressions": Array [
+          Object {
+            "type": "String",
+            "value": "[",
+          },
+          Object {
+            "expression": Object {
+              "expression": Object {
+                "expression": Object {
+                  "expressions": Array [
+                    Object {
+                      "type": "RuleName",
+                      "value": "CharacterRange",
+                    },
+                    Object {
+                      "type": "RuleName",
+                      "value": "EscapeCode",
+                    },
+                    Object {
+                      "type": "RuleName",
+                      "value": "EscapeSequence",
+                    },
+                    Object {
+                      "character": Object {
+                        "type": "EscapeSequence",
+                        "value": "]",
+                      },
+                      "type": "NotCharacter",
+                    },
+                  ],
+                  "type": "Alternation",
+                },
+                "type": "Group",
+              },
+              "repetition": "LexemeOneOrMore",
+              "type": "Repetition",
+            },
+            "propertyName": "matches",
+            "type": "Assignment",
+          },
+          Object {
+            "type": "String",
+            "value": "]",
+          },
+        ],
+        "type": "Lexeme",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Characters",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Constant <- String / SpacingRule / EscapeSequence 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "RuleName",
+        "value": "String",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "SpacingRule",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "EscapeSequence",
+      },
+    ],
+    "type": "Alternation",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Constant",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: EscapeCode <= \\\\ ^ code:("w" / "s") 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expressions": Array [
+          Object {
+            "type": "EscapeSequence",
+            "value": "\\\\",
+          },
+          Object {
+            "expression": Object {
+              "expression": Object {
+                "expressions": Array [
+                  Object {
+                    "type": "String",
+                    "value": "w",
+                  },
+                  Object {
+                    "type": "String",
+                    "value": "s",
+                  },
+                ],
+                "type": "Alternation",
+              },
+              "type": "Group",
+            },
+            "propertyName": "code",
+            "type": "Assignment",
+          },
+        ],
+        "type": "Lexeme",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "EscapeCode",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: EscapeSequence <= \\\\ ^ value:(\\\\ / "n" $as \\n / \\" / \\[ / \\]) 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expressions": Array [
+          Object {
+            "type": "EscapeSequence",
+            "value": "\\\\",
+          },
+          Object {
+            "expression": Object {
+              "expression": Object {
+                "expressions": Array [
+                  Object {
+                    "type": "EscapeSequence",
+                    "value": "\\\\",
+                  },
+                  Object {
+                    "expression": Object {
+                      "type": "String",
+                      "value": "n",
+                    },
+                    "type": "AsConstant",
+                    "value": Object {
+                      "type": "EscapeSequence",
+                      "value": "
+",
+                    },
+                  },
+                  Object {
+                    "type": "EscapeSequence",
+                    "value": "\\"",
+                  },
+                  Object {
+                    "type": "EscapeSequence",
+                    "value": "[",
+                  },
+                  Object {
+                    "type": "EscapeSequence",
+                    "value": "]",
+                  },
+                ],
+                "type": "Alternation",
+              },
+              "type": "Group",
+            },
+            "propertyName": "value",
+            "type": "Assignment",
+          },
+        ],
+        "type": "Lexeme",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "EscapeSequence",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Expression <- $next 1`] = `
+Object {
+  "expression": Object {
+    "type": "Next",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Expression",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: ExpressionLeaf <-
+        Group /
+        RuleName &!"<" /
+        Constant /
+        AnyCharacter /
+        EscapeCode /
+        Characters /
+        NotCharacter /
+        Next /
+        ToString 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "RuleName",
+        "value": "Group",
+      },
+      Object {
+        "expressions": Array [
+          Object {
+            "type": "RuleName",
+            "value": "RuleName",
+          },
+          Object {
+            "expression": Object {
+              "type": "String",
+              "value": "<",
+            },
+            "predicate": "NotPredicate",
+            "type": "Predicate",
+          },
+        ],
+        "type": "Sequence",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "Constant",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "AnyCharacter",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "EscapeCode",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "Characters",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "NotCharacter",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "Next",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "ToString",
+      },
+    ],
+    "type": "Alternation",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "ExpressionLeaf",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Grammar <- (Rule / TreeRule)+ 1`] = `
+Object {
+  "expression": Object {
+    "expression": Object {
+      "expression": Object {
+        "expressions": Array [
+          Object {
+            "type": "RuleName",
+            "value": "Rule",
+          },
+          Object {
+            "type": "RuleName",
+            "value": "TreeRule",
+          },
+        ],
+        "type": "Alternation",
+      },
+      "type": "Group",
+    },
+    "repetition": "OneOrMore",
+    "type": "Repetition",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Grammar",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Group <= "(" expression:Expression ")" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": "(",
+      },
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "Expression",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+      Object {
+        "type": "String",
+        "value": ")",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Group",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Join <= expression:$next (
+        repetition:("%+" $as "OneOrMore" / "%" $as "ZeroOrMore")
+        joinWith:$next
+      )|? 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "Next",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+      Object {
+        "option": Object {
+          "expression": Object {
+            "expressions": Array [
+              Object {
+                "expression": Object {
+                  "expression": Object {
+                    "expressions": Array [
+                      Object {
+                        "expression": Object {
+                          "type": "String",
+                          "value": "%+",
+                        },
+                        "type": "AsConstant",
+                        "value": Object {
+                          "type": "String",
+                          "value": "OneOrMore",
+                        },
+                      },
+                      Object {
+                        "expression": Object {
+                          "type": "String",
+                          "value": "%",
+                        },
+                        "type": "AsConstant",
+                        "value": Object {
+                          "type": "String",
+                          "value": "ZeroOrMore",
+                        },
+                      },
+                    ],
+                    "type": "Alternation",
+                  },
+                  "type": "Group",
+                },
+                "propertyName": "repetition",
+                "type": "Assignment",
+              },
+              Object {
+                "expression": Object {
+                  "type": "Next",
+                },
+                "propertyName": "joinWith",
+                "type": "Assignment",
+              },
+            ],
+            "type": "Sequence",
+          },
+          "type": "Group",
+        },
+        "type": "TreeOption",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Join",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Lexeme <= expressions:$next |% "^" 1`] = `
+Object {
+  "expression": Object {
+    "expression": Object {
+      "expression": Object {
+        "type": "Next",
+      },
+      "propertyName": "expressions",
+      "type": "Assignment",
+    },
+    "joinWith": Object {
+      "type": "String",
+      "value": "^",
+    },
+    "type": "TreeJoin",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Lexeme",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Next <= "$next" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": "$next",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Next",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: NotCharacter <= "!" (character:EscapeSequence / \\" ^ character:(! \\") ^ \\") 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": "!",
+      },
+      Object {
+        "expression": Object {
+          "expressions": Array [
+            Object {
+              "expression": Object {
+                "type": "RuleName",
+                "value": "EscapeSequence",
+              },
+              "propertyName": "character",
+              "type": "Assignment",
+            },
+            Object {
+              "expressions": Array [
+                Object {
+                  "type": "EscapeSequence",
+                  "value": "\\"",
+                },
+                Object {
+                  "expression": Object {
+                    "expression": Object {
+                      "character": Object {
+                        "type": "EscapeSequence",
+                        "value": "\\"",
+                      },
+                      "type": "NotCharacter",
+                    },
+                    "type": "Group",
+                  },
+                  "propertyName": "character",
+                  "type": "Assignment",
+                },
+                Object {
+                  "type": "EscapeSequence",
+                  "value": "\\"",
+                },
+              ],
+              "type": "Lexeme",
+            },
+          ],
+          "type": "Alternation",
+        },
+        "type": "Group",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "NotCharacter",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Predicate <= predicate:("&!" $as "NotPredicate" / "&" $as "AndPredicate") expression:ExpressionLeaf 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "expression": Object {
+            "expressions": Array [
+              Object {
+                "expression": Object {
+                  "type": "String",
+                  "value": "&!",
+                },
+                "type": "AsConstant",
+                "value": Object {
+                  "type": "String",
+                  "value": "NotPredicate",
+                },
+              },
+              Object {
+                "expression": Object {
+                  "type": "String",
+                  "value": "&",
+                },
+                "type": "AsConstant",
+                "value": Object {
+                  "type": "String",
+                  "value": "AndPredicate",
+                },
+              },
+            ],
+            "type": "Alternation",
+          },
+          "type": "Group",
+        },
+        "propertyName": "predicate",
+        "type": "Assignment",
+      },
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "ExpressionLeaf",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Predicate",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: PropertyName <- [a-z_] ^ [a-zA-Z0-9_]^+ 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "matches": Array [
+          Object {
+            "from": "a",
+            "to": "z",
+            "type": "CharacterRange",
+          },
+          "_",
+        ],
+        "type": "Characters",
+      },
+      Object {
+        "expression": Object {
+          "matches": Array [
+            Object {
+              "from": "a",
+              "to": "z",
+              "type": "CharacterRange",
+            },
+            Object {
+              "from": "A",
+              "to": "Z",
+              "type": "CharacterRange",
+            },
+            Object {
+              "from": "0",
+              "to": "9",
+              "type": "CharacterRange",
+            },
+            "_",
+          ],
+          "type": "Characters",
+        },
+        "repetition": "LexemeOneOrMore",
+        "type": "Repetition",
+      },
+    ],
+    "type": "Lexeme",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "PropertyName",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Repetition <= expression:$next repetition:(
+        "+" $as "OneOrMore" /
+        "*" $as "ZeroOrMore" /
+        "^+" $as "LexemeOneOrMore" /
+        "^*" $as "LexemeZeroOrMore"
+      )|? 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "Next",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+      Object {
+        "option": Object {
+          "expression": Object {
+            "expression": Object {
+              "expressions": Array [
+                Object {
+                  "expression": Object {
+                    "type": "String",
+                    "value": "+",
+                  },
+                  "type": "AsConstant",
+                  "value": Object {
+                    "type": "String",
+                    "value": "OneOrMore",
+                  },
+                },
+                Object {
+                  "expression": Object {
+                    "type": "String",
+                    "value": "*",
+                  },
+                  "type": "AsConstant",
+                  "value": Object {
+                    "type": "String",
+                    "value": "ZeroOrMore",
+                  },
+                },
+                Object {
+                  "expression": Object {
+                    "type": "String",
+                    "value": "^+",
+                  },
+                  "type": "AsConstant",
+                  "value": Object {
+                    "type": "String",
+                    "value": "LexemeOneOrMore",
+                  },
+                },
+                Object {
+                  "expression": Object {
+                    "type": "String",
+                    "value": "^*",
+                  },
+                  "type": "AsConstant",
+                  "value": Object {
+                    "type": "String",
+                    "value": "LexemeZeroOrMore",
+                  },
+                },
+              ],
+              "type": "Alternation",
+            },
+            "type": "Group",
+          },
+          "propertyName": "repetition",
+          "type": "Assignment",
+        },
+        "type": "TreeOption",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Repetition",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Rule <= name:RuleName "<-" expression:Expression 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "RuleName",
+        },
+        "propertyName": "name",
+        "type": "Assignment",
+      },
+      Object {
+        "type": "String",
+        "value": "<-",
+      },
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "Expression",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Rule",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: RuleName <= value:([A-Z] ^ [a-zA-Z0-9_]^+) 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "expression": Object {
+            "expressions": Array [
+              Object {
+                "matches": Array [
+                  Object {
+                    "from": "A",
+                    "to": "Z",
+                    "type": "CharacterRange",
+                  },
+                ],
+                "type": "Characters",
+              },
+              Object {
+                "expression": Object {
+                  "matches": Array [
+                    Object {
+                      "from": "a",
+                      "to": "z",
+                      "type": "CharacterRange",
+                    },
+                    Object {
+                      "from": "A",
+                      "to": "Z",
+                      "type": "CharacterRange",
+                    },
+                    Object {
+                      "from": "0",
+                      "to": "9",
+                      "type": "CharacterRange",
+                    },
+                    "_",
+                  ],
+                  "type": "Characters",
+                },
+                "repetition": "LexemeOneOrMore",
+                "type": "Repetition",
+              },
+            ],
+            "type": "Lexeme",
+          },
+          "type": "Group",
+        },
+        "propertyName": "value",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "RuleName",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Sequence <= expressions:($next / Predicate)|+ 1`] = `
+Object {
+  "expression": Object {
+    "expression": Object {
+      "expression": Object {
+        "expression": Object {
+          "expressions": Array [
+            Object {
+              "type": "Next",
+            },
+            Object {
+              "type": "RuleName",
+              "value": "Predicate",
+            },
+          ],
+          "type": "Alternation",
+        },
+        "type": "Group",
+      },
+      "propertyName": "expressions",
+      "type": "Assignment",
+    },
+    "type": "TreeRepetition",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Sequence",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: Spacing <- \\s^+ 1`] = `
+Object {
+  "expression": Object {
+    "expression": Object {
+      "code": "s",
+      "type": "EscapeCode",
+    },
+    "repetition": "LexemeOneOrMore",
+    "type": "Repetition",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "Spacing",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: SpacingRule <= "~" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": "~",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "SpacingRule",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: String <= \\" ^ value:($string EscapeSequence / ! \\")^+ ^ \\" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expressions": Array [
+          Object {
+            "type": "EscapeSequence",
+            "value": "\\"",
+          },
+          Object {
+            "expression": Object {
+              "expression": Object {
+                "expression": Object {
+                  "expressions": Array [
+                    Object {
+                      "expression": Object {
+                        "type": "RuleName",
+                        "value": "EscapeSequence",
+                      },
+                      "type": "ToString",
+                    },
+                    Object {
+                      "character": Object {
+                        "type": "EscapeSequence",
+                        "value": "\\"",
+                      },
+                      "type": "NotCharacter",
+                    },
+                  ],
+                  "type": "Alternation",
+                },
+                "type": "Group",
+              },
+              "repetition": "LexemeOneOrMore",
+              "type": "Repetition",
+            },
+            "propertyName": "value",
+            "type": "Assignment",
+          },
+          Object {
+            "type": "EscapeSequence",
+            "value": "\\"",
+          },
+        ],
+        "type": "Lexeme",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "String",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: ToString <= "$string" ExpressionLeaf 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": "$string",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "ExpressionLeaf",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "ToString",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: ToString <= "$string" expression:ExpressionLeaf 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "String",
+        "value": "$string",
+      },
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "ExpressionLeaf",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "ToString",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: TreeExpression <- TreeRepetition / TreeJoin / TreeSequence 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "type": "RuleName",
+        "value": "TreeRepetition",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "TreeJoin",
+      },
+      Object {
+        "type": "RuleName",
+        "value": "TreeSequence",
+      },
+    ],
+    "type": "Alternation",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "TreeExpression",
+  },
+  "type": "Rule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: TreeJoin <= expression:Expression "|%" joinWith:Constant 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "Expression",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+      Object {
+        "type": "String",
+        "value": "|%",
+      },
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "Constant",
+        },
+        "propertyName": "joinWith",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "TreeJoin",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: TreeOption <= option:Join "|?" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "Join",
+        },
+        "propertyName": "option",
+        "type": "Assignment",
+      },
+      Object {
+        "type": "String",
+        "value": "|?",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "TreeOption",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: TreeRepetition <= expression:Expression "|+" 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "Expression",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+      Object {
+        "type": "String",
+        "value": "|+",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "TreeRepetition",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: TreeRule <= name:RuleName "<=" expression:TreeExpression 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "RuleName",
+        },
+        "propertyName": "name",
+        "type": "Assignment",
+      },
+      Object {
+        "type": "String",
+        "value": "<=",
+      },
+      Object {
+        "expression": Object {
+          "type": "RuleName",
+          "value": "TreeExpression",
+        },
+        "propertyName": "expression",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "TreeRule",
+  },
+  "type": "TreeRule",
+}
+`;
+
+exports[`tbpegByHand parse expression matches: TreeSequence <= expressions:(TreeOption / Join / Predicate)+ 1`] = `
+Object {
+  "expression": Object {
+    "expressions": Array [
+      Object {
+        "expression": Object {
+          "expression": Object {
+            "expression": Object {
+              "expressions": Array [
+                Object {
+                  "type": "RuleName",
+                  "value": "TreeOption",
+                },
+                Object {
+                  "type": "RuleName",
+                  "value": "Join",
+                },
+                Object {
+                  "type": "RuleName",
+                  "value": "Predicate",
+                },
+              ],
+              "type": "Alternation",
+            },
+            "type": "Group",
+          },
+          "repetition": "OneOrMore",
+          "type": "Repetition",
+        },
+        "propertyName": "expressions",
+        "type": "Assignment",
+      },
+    ],
+    "type": "TreeSequence",
+  },
+  "name": Object {
+    "type": "RuleName",
+    "value": "TreeSequence",
+  },
+  "type": "TreeRule",
+}
+`;
