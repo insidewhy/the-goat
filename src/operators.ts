@@ -120,7 +120,7 @@ export const optional = <T>(rule: ParserOp<T>) => <O>(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const atLeastOne = <T>(rule: ParserOp<T>) => {
   const parseZeroOrMore = zeroOrMore(rule)
 
@@ -277,7 +277,7 @@ export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
   return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const sequence = <T extends any[]>(...rules: T) =>
   // see comment above :(
   // sequenceCustom<FilterBooleans<SequenceReturnTypes<T>>>()(...rules)
@@ -342,15 +342,15 @@ const joinHelper = <A extends boolean, T, U>(
   return values
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const join = <T, U>(rule: ParserOp<T>, joinRule: ParserOp<U>) =>
   joinHelper(false, rule, joinRule)
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const joinMany = <T, U>(rule: ParserOp<T>, joinRule: ParserOp<U>) =>
   joinHelper(true, rule, joinRule)
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const treeJoin = <T, U, O>(
   makeObject: () => O,
   rule: ParserOp<T>,
@@ -373,7 +373,7 @@ export const treeJoin = <T, U, O>(
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const treeRepetition = <T, O>(
   makeObject: () => O,
   rule: ParserOp<T>,
@@ -445,13 +445,13 @@ export const treeSequenceCustom = <R>(spacingBetween = true) => <
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const treeSequence = <O, T extends any[]>(
   makeObject: () => O,
   ...rules: T
 ) => treeSequenceCustom<SequenceReturnType<T>>()(makeObject, ...rules)
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const treeOptional = <T>(rule: ParserOp<T>) => {
   const operator = optional(rule)
   ;(operator as any).isTreeOption = true
