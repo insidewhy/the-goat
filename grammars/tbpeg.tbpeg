@@ -38,8 +38,6 @@ ExpressionLeaf <-
   Next /
   ToString
 
-ToString <= "$string" ExpressionLeaf
-
 Predicate <= predicate:("&!" $as "NotPredicate" / "&" $as "AndPredicate") expression:ExpressionLeaf
 
 Group <= "(" expression:Expression ")"
