@@ -18,6 +18,7 @@ import {
   treeRepetition,
   treeOptional,
   treeSequenceCustom,
+  treeLexeme,
   asConstant,
   notChar,
   spacing,
@@ -346,7 +347,7 @@ export const parseCharacters = object(
 
 export const parseNotCharacter = object(
   (): NotCharacter => ({ type: 'NotCharacter' } as NotCharacter),
-  sequenceCustom<string>()(
+  sequence(
     constant('!'),
     alternation(
       property('character', parseEscapeSequence),
@@ -411,13 +412,11 @@ export const parseRepetition = treeSequenceCustom<Repetition['expression']>()(
 const makeAsConstant = (): AsConstant => ({ type: 'AsConstant' } as AsConstant)
 
 // disable automatic whitespace skipping due to use of `spacing`
-export const parseAsConstant = treeSequenceCustom<AsConstant['expression']>(
-  false,
-)(
+export const parseAsConstant = treeLexeme()(
   makeAsConstant,
   property('expression', parseRepetition),
   treeOptional(
-    sequenceCustom(false)(
+    lexeme(
       spacing(),
       constant('$as'),
       spacing(),
@@ -510,10 +509,7 @@ const makeTreeOption = (): TreeOption => ({ type: 'TreeOption' } as TreeOption)
 
 export const parseTreeOption = object(
   makeTreeOption,
-  sequenceCustom<Assignment | Assignment['expression']>()(
-    property('option', parseAssignment),
-    constant('|?'),
-  ),
+  sequence(property('option', parseAssignment), constant('|?')),
 )
 
 const makeTreeSequence = (): TreeSequence => ({
@@ -535,7 +531,7 @@ const makeTreeJoin = (): TreeJoin => ({ type: 'TreeJoin' } as TreeJoin)
 
 export const parseTreeJoin = object(
   makeTreeJoin,
-  sequenceCustom<[string, string]>()(
+  sequence(
     property('expression', parseExpression),
     constant('|%'),
     property('joinWith', parseConstant),
@@ -547,10 +543,7 @@ const makeTreeRepetition = (): TreeRepetition =>
 
 export const parseTreeRepetition = object(
   makeTreeRepetition,
-  sequenceCustom<Expression>()(
-    property('expression', parseExpression),
-    constant('|+'),
-  ),
+  sequence(property('expression', parseExpression), constant('|+')),
 )
 
 export const parseTreeExpression = alternation(

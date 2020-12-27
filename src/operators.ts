@@ -238,9 +238,10 @@ type SequenceReturnType<T extends any[]> = UnwrapOneTuple<
  * See https://github.com/insidewhy/the-goat/commit/1caab09191b49586727d65da918e471e4687cc24
  * for the implementation, wish it could be used.
  */
-export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
-  ...rules: T
-) => <O>(p: Parser, obj?: O): R | undefined => {
+export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
+  p: Parser,
+  obj?: O,
+): R | undefined => {
   const ret: any[] = []
   let indexBackup = p.index
 
@@ -249,10 +250,8 @@ export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
     const ruleValue = rules[i](p, obj)
     // predicate or mismatch
     if (typeof ruleValue === 'boolean') {
-      if (spacingBetween) {
-        // restore before predicate
-        p.restoreIndex(indexBackup)
-      }
+      // restore before predicate
+      p.restoreIndex(indexBackup)
       if (ruleValue === false) {
         return undefined
       }
@@ -262,14 +261,14 @@ export const sequenceCustom = <R>(spacingBetween = true) => <T extends any[]>(
         return undefined
       } else {
         ret.push(ruleValue)
-        if (spacingBetween && ruleValue.length === 0) {
+        if (ruleValue.length === 0) {
           // for optional matches that didn't match, erase the whitspace skip
           p.restoreIndex(indexBackup)
         }
       }
     }
 
-    if (spacingBetween && i < length - 1) {
+    if (i < length - 1) {
       indexBackup = p.index
       p.skipSpacing()
     }
@@ -392,10 +391,7 @@ export const treeRepetition = <T, O>(
 }
 
 // see comments on sequenceCustom for why this is needed
-export const treeSequenceCustom = <R>(spacingBetween = true) => <
-  O,
-  T extends any[]
->(
+export const treeSequenceCustom = <R>() => <O, T extends any[]>(
   makeObject: () => O,
   ...rules: T
 ) => (p: Parser): R | O | undefined => {
@@ -408,10 +404,8 @@ export const treeSequenceCustom = <R>(spacingBetween = true) => <
   for (let i = 0; i < length; ++i) {
     const ruleValue = rules[i](p, obj)
     if (typeof ruleValue === 'boolean') {
-      if (spacingBetween) {
-        // restore before space skip for predicates
-        p.restoreIndex(indexBackup)
-      }
+      // restore before space skip for predicates
+      p.restoreIndex(indexBackup)
       if (ruleValue === false) {
         return undefined
       }
@@ -420,10 +414,8 @@ export const treeSequenceCustom = <R>(spacingBetween = true) => <
       if (ruleValue === undefined) {
         return undefined
       } else if (ruleValue.length === 0) {
-        if (spacingBetween) {
-          // for optional matches that didn't match, erase the whitspace skip
-          p.restoreIndex(indexBackup)
-        }
+        // for optional matches that didn't match, erase the whitspace skip
+        p.restoreIndex(indexBackup)
       } else {
         if (!hasTreeOption && rules[i].isTreeOption && ruleValue !== '') {
           hasTreeOption = true
@@ -432,9 +424,44 @@ export const treeSequenceCustom = <R>(spacingBetween = true) => <
       }
     }
 
-    if (spacingBetween && i < length - 1) {
+    if (i < length - 1) {
       indexBackup = p.index
       p.skipSpacing()
+    }
+  }
+
+  if (hasTreeOption) {
+    return obj
+  } else {
+    return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
+  }
+}
+
+export const treeLexeme = <R>() => <O, T extends any[]>(
+  makeObject: () => O,
+  ...rules: T
+) => (p: Parser): R | O | undefined => {
+  const obj = makeObject()
+  const ret: any[] = []
+  let hasTreeOption = false
+
+  const { length } = rules
+  for (let i = 0; i < length; ++i) {
+    const ruleValue = rules[i](p, obj)
+    if (typeof ruleValue === 'boolean') {
+      if (ruleValue === false) {
+        return undefined
+      }
+      // don't store predicates
+    } else {
+      if (ruleValue === undefined) {
+        return undefined
+      } else if (ruleValue.length !== 0) {
+        if (!hasTreeOption && rules[i].isTreeOption && ruleValue !== '') {
+          hasTreeOption = true
+        }
+        ret.push(ruleValue)
+      }
     }
   }
 
