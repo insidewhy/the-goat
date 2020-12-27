@@ -45,7 +45,9 @@ export async function run(): Promise<void> {
     throw new Error('Must use -a/--ast or -t/--types argument currently')
   }
 
-  positionals.forEach((str) => {
+  positionals.forEach((positional) => {
+    // yargs converts number-like positionals to numbers :(
+    const str = positional.toString()
     const p = new GrammarParser(str)
     const ast = p.parse()
     if (ast === undefined) {
