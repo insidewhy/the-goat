@@ -1,5 +1,6 @@
 import * as yargs from 'yargs'
 import { GrammarParser } from './tbpegByHand'
+import { generateTypes } from './typeGenerator'
 
 export async function run(): Promise<void> {
   const argBuilder = yargs
@@ -63,7 +64,7 @@ export async function run(): Promise<void> {
     if (cfg.ast) {
       console.log(JSON.stringify(ast, null, 2))
     } else {
-      console.warn(`TODO: output types`)
+      console.log(generateTypes(ast))
     }
   })
 }
