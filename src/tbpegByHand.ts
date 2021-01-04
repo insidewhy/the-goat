@@ -12,7 +12,6 @@ import {
   stringLexemeAtLeastOne,
   sequence,
   notPredicate,
-  sequenceCustom,
   treeJoin,
   appendProperty,
   treeRepetition,
@@ -253,14 +252,12 @@ const makeGroup = (): Group => ({ type: 'Group' } as Group)
 
 export const parseGroup = object(
   makeGroup,
-  sequence(
-    constant('('),
-    // must use forwarding function due to cyclic dependency between group and expression
-    property('expression', (p: Parser): Expression | undefined =>
-      parseExpression(p),
-    ),
-    constant(')'),
+  constant('('),
+  // must use forwarding function due to cyclic dependency between group and expression
+  property('expression', (p: Parser): Expression | undefined =>
+    parseExpression(p),
   ),
+  constant(')'),
 )
 
 const makeEscapeSequence = (): EscapeSequence =>
@@ -347,12 +344,10 @@ export const parseCharacters = object(
 
 export const parseNotCharacter = object(
   (): NotCharacter => ({ type: 'NotCharacter' } as NotCharacter),
-  sequence(
-    constant('!'),
-    alternation(
-      property('character', parseEscapeSequence),
-      lexeme(constant('"'), property('character', notChar('"')), constant('"')),
-    ),
+  constant('!'),
+  alternation(
+    property('character', parseEscapeSequence),
+    lexeme(constant('"'), property('character', notChar('"')), constant('"')),
   ),
 )
 
@@ -363,13 +358,11 @@ export const parseNext = object(
 
 export const parseToString = object(
   (): ToString => ({ type: 'ToString' } as ToString),
-  sequence(
-    constant('$string'),
-    property(
-      'expression',
-      (p: Parser): ExpressionLeaf | undefined =>
-        parseExpressionLeaf(p) as ExpressionLeaf | undefined,
-    ),
+  constant('$string'),
+  property(
+    'expression',
+    (p: Parser): ExpressionLeaf | undefined =>
+      parseExpressionLeaf(p) as ExpressionLeaf | undefined,
   ),
 )
 
@@ -381,7 +374,7 @@ export const parseConstant = alternation(
 
 export const parseExpressionLeaf = alternation(
   parseGroup,
-  sequenceCustom<RuleName>()(parseRuleName, notPredicate(constant('<'))),
+  sequence(parseRuleName, notPredicate(constant('<'))),
   parseConstant,
   parseAnyCharacter,
   parseEscapeCode,
@@ -429,9 +422,7 @@ const makeAssignment = (): Assignment => ({ type: 'Assignment' } as Assignment)
 
 export const parseAssignment = treeSequenceCustom<Assignment['expression']>()(
   makeAssignment,
-  treeOptional(
-    sequence(property('propertyName', parsePropertyName), constant(':')),
-  ),
+  treeOptional(property('propertyName', parsePropertyName), constant(':')),
   property('expression', parseAsConstant),
 )
 
@@ -449,16 +440,14 @@ export const parseJoin = treeSequenceCustom<Join['expression']>()(
   makeJoin,
   property('expression', parseLexeme),
   treeOptional(
-    sequence(
-      property(
-        'repetition',
-        alternation(
-          asConstant(constant('%+'), 'OneOrMore'),
-          asConstant(constant('%'), 'ZeroOrMore'),
-        ),
+    property(
+      'repetition',
+      alternation(
+        asConstant(constant('%+'), 'OneOrMore'),
+        asConstant(constant('%'), 'ZeroOrMore'),
       ),
-      property('joinWith', parseLexeme),
     ),
+    property('joinWith', parseLexeme),
   ),
 )
 
@@ -466,16 +455,14 @@ const makePredicate = (): Predicate => ({ type: 'Predicate' } as Predicate)
 
 export const parsePredicate = object(
   makePredicate,
-  sequence(
-    property(
-      'predicate',
-      alternation(
-        asConstant(constant('&!'), 'NotPredicate'),
-        asConstant(constant('&'), 'AndPredicate'),
-      ),
+  property(
+    'predicate',
+    alternation(
+      asConstant(constant('&!'), 'NotPredicate'),
+      asConstant(constant('&'), 'AndPredicate'),
     ),
-    property('expression', parseExpressionLeaf),
   ),
+  property('expression', parseExpressionLeaf),
 )
 
 export const parseSequence = treeRepetition(
@@ -498,18 +485,17 @@ const makeRule = (): Rule => ({ type: 'Rule' } as Rule)
 
 export const parseRule = object(
   makeRule,
-  sequence(
-    property('name', parseRuleName),
-    constant('<-'),
-    property('expression', parseExpression),
-  ),
+  property('name', parseRuleName),
+  constant('<-'),
+  property('expression', parseExpression),
 )
 
 const makeTreeOption = (): TreeOption => ({ type: 'TreeOption' } as TreeOption)
 
 export const parseTreeOption = object(
   makeTreeOption,
-  sequence(property('option', parseAssignment), constant('|?')),
+  property('option', parseAssignment),
+  constant('|?'),
 )
 
 const makeTreeSequence = (): TreeSequence => ({
@@ -531,11 +517,9 @@ const makeTreeJoin = (): TreeJoin => ({ type: 'TreeJoin' } as TreeJoin)
 
 export const parseTreeJoin = object(
   makeTreeJoin,
-  sequence(
-    property('expression', parseExpression),
-    constant('|%'),
-    property('joinWith', parseConstant),
-  ),
+  property('expression', parseExpression),
+  constant('|%'),
+  property('joinWith', parseConstant),
 )
 
 const makeTreeRepetition = (): TreeRepetition =>
@@ -543,7 +527,8 @@ const makeTreeRepetition = (): TreeRepetition =>
 
 export const parseTreeRepetition = object(
   makeTreeRepetition,
-  sequence(property('expression', parseExpression), constant('|+')),
+  property('expression', parseExpression),
+  constant('|+'),
 )
 
 export const parseTreeExpression = alternation(
@@ -556,11 +541,9 @@ const makeTreeRule = (): TreeRule => ({ type: 'TreeRule' } as TreeRule)
 
 export const parseTreeRule = object(
   makeTreeRule,
-  sequence(
-    property('name', parseRuleName),
-    constant('<='),
-    property('expression', parseTreeExpression),
-  ),
+  property('name', parseRuleName),
+  constant('<='),
+  property('expression', parseTreeExpression),
 )
 
 const parseGrammar = atLeastOne(alternation(parseRule, parseTreeRule))

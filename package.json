@@ -31,6 +31,7 @@
     "validate-prettiness": "yarn run-prettier -c",
     "make-prettier": "yarn run-prettier --write",
     "test": "yarn jest",
+    "test-debug": "node --inspect ./node_modules/.bin/jest --runInBand",
     "watch": "yarn build && concurrently 'yarn build-watch' 'yarn jest-watch'",
     "validate": "yarn test && yarn lint && yarn validate-prettiness",
     "jest-watch": "yarn jest --watchAll"

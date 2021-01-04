@@ -1,5 +1,4 @@
 import { Parser } from './parser'
-// import { FilterBooleans } from './filterBooleans'
 
 type ReturnTypeUnion<T extends any[]> = ReturnType<T[number]>
 
@@ -210,10 +209,11 @@ export const appendProperty = <T>(propName: string, rule: ParserOp<T>) => <O>(
   return result
 }
 
-export const object = <T, O>(factory: () => O, rule: ParserOp<T>) => (
+export const object = <T extends any[], O>(factory: () => O, ...rules: T) => (
   p: Parser,
 ): O | undefined => {
   const obj = factory()
+  const rule = rules.length === 1 ? rules[0] : sequenceHelper(...rules)
   return rule(p, obj) === undefined ? undefined : obj
 }
 
@@ -223,26 +223,19 @@ type ReturnTypeWithoutUndefined<T> = T extends (...args: any[]) => any
   ? WithoutUndefined<ReturnType<T>>
   : never
 
-type UnwrapOneTuple<T extends any[]> = T['length'] extends 1 ? T[0] : T
-
-type SequenceReturnType<T extends any[]> = UnwrapOneTuple<
-  {
-    [K in keyof T]: ReturnTypeWithoutUndefined<T[K]>
-  }
+type SequenceReturnType<T extends any[]> = WithoutUndefined<
+  ReturnTypeWithoutUndefined<T[number]>
 >
 
 /**
- * Same as parseSequence but when a custom return type is needed. We can filter
- * the booleans from the tuple, but doing so uses a lot of CPU due since typescript
- * doesn't have a sensible way to filter tuples.
- * See https://github.com/insidewhy/the-goat/commit/1caab09191b49586727d65da918e471e4687cc24
- * for the implementation, wish it could be used.
+ * Like sequence, but returns a type. This can only be used when one of the
+ * subparsers is a storing parser.
  */
-export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
+export const sequence = <T extends any[]>(...rules: T) => <O>(
   p: Parser,
   obj?: O,
-): R | undefined => {
-  const ret: any[] = []
+): SequenceReturnType<T> | undefined => {
+  let ret: SequenceReturnType<T> | undefined
   let indexBackup = p.index
 
   const { length } = rules
@@ -260,7 +253,7 @@ export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
       if (ruleValue === undefined) {
         return undefined
       } else {
-        ret.push(ruleValue)
+        ret = ruleValue
         if (ruleValue.length === 0) {
           // for optional matches that didn't match, erase the whitspace skip
           p.restoreIndex(indexBackup)
@@ -273,14 +266,45 @@ export const sequenceCustom = <R>() => <T extends any[]>(...rules: T) => <O>(
       p.skipSpacing()
     }
   }
-  return ((ret.length === 1 ? ret[0] : ret) as unknown) as R
+  return ret
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const sequence = <T extends any[]>(...rules: T) =>
-  // see comment above :(
-  // sequenceCustom<FilterBooleans<SequenceReturnTypes<T>>>()(...rules)
-  sequenceCustom<SequenceReturnType<T>>()(...rules)
+const sequenceHelper = <T extends any[]>(...rules: T) => <O>(
+  p: Parser,
+  obj?: O,
+): 'something' | undefined => {
+  let indexBackup = p.index
+
+  const { length } = rules
+  for (let i = 0; i < length; ++i) {
+    const ruleValue = rules[i](p, obj)
+    // predicate or mismatch
+    if (typeof ruleValue === 'boolean') {
+      // restore before predicate
+      p.restoreIndex(indexBackup)
+      if (ruleValue === false) {
+        return undefined
+      }
+      // don't store predicates
+    } else {
+      if (ruleValue === undefined) {
+        return undefined
+      } else {
+        if (ruleValue.length === 0) {
+          // for optional matches that didn't match, erase the whitspace skip
+          p.restoreIndex(indexBackup)
+        }
+      }
+    }
+
+    if (i < length - 1) {
+      indexBackup = p.index
+      p.skipSpacing()
+    }
+  }
+  return 'something'
+}
 
 export const andPredicate = <T>(rule: ParserOp<T>) => (
   p: Parser,
@@ -390,7 +414,6 @@ export const treeRepetition = <T, O>(
   }
 }
 
-// see comments on sequenceCustom for why this is needed
 export const treeSequenceCustom = <R>() => <O, T extends any[]>(
   makeObject: () => O,
   ...rules: T
@@ -479,8 +502,10 @@ export const treeSequence = <O, T extends any[]>(
 ) => treeSequenceCustom<SequenceReturnType<T>>()(makeObject, ...rules)
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const treeOptional = <T>(rule: ParserOp<T>) => {
-  const operator = optional(rule)
+export const treeOptional = <T extends any[]>(...rules: T) => {
+  const operator = optional(
+    rules.length === 1 ? rules[0] : sequenceHelper(...rules),
+  )
   ;(operator as any).isTreeOption = true
   return operator
 }

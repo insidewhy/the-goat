@@ -8,8 +8,6 @@ import {
   lexeme,
   stringLexemeAtLeastOne,
   notPredicate,
-  sequence,
-  sequenceCustom,
   andPredicate,
   join,
   joinMany,
@@ -254,44 +252,6 @@ describe('operator', () => {
         const p = new Parser('oh')
         const result = parseConstantToObjectProperty(p)
         expect(result).toEqual({ value: 'oh' })
-      })
-    })
-  })
-
-  describe('sequence', () => {
-    describe('"oh" "cat"', () => {
-      const parseOhThenCat = sequence(constant('oh'), constant('cat'))
-
-      it('parses "oh cat" as ["oh", "cat"]', () => {
-        const p = new Parser('oh catb')
-        expect(parseOhThenCat(p)).toEqual(['oh', 'cat'])
-        expect(p.next).toEqual('b')
-      })
-
-      it('parses "oh bat" as undefined', () => {
-        const p = new Parser('oh bat')
-        expect(parseOhThenCat(p)).toEqual(undefined)
-        // the string is not reset, this is left to the alternation/repetition above
-        expect(p.next).toEqual('b')
-      })
-    })
-
-    describe('"oh" &!"cat"', () => {
-      const parseOhNotFollowedByCat = sequenceCustom<string>()(
-        constant('oh'),
-        notPredicate(constant('cat')),
-      )
-
-      it('parses "oh bat" as "oh"', () => {
-        const p = new Parser('oh bat')
-        expect(parseOhNotFollowedByCat(p)).toEqual('oh')
-        expect(p.next).toEqual(' ')
-      })
-
-      it('parses "oh cat" as undefined', () => {
-        const p = new Parser('oh cat')
-        expect(parseOhNotFollowedByCat(p)).toEqual(undefined)
-        expect(p.next).toEqual(' ')
       })
     })
   })
