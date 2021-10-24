@@ -1,0 +1,103 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`typeGenerator generates types for: 
+    Grammar <- $next^+
+    Character <- [a-z]
+   1`] = `
+"export type Grammar = string
+export type Character = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    Grammar <- [A-Z] / String
+    String <- [a-z]^+
+   1`] = `
+"export type Grammar = String
+export type String = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    Grammar <- Character^+
+    Character <- [a-z]
+   1`] = `
+"export type Grammar = string
+export type Character = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    Grammar <- String / [A-Z]
+    String <- [a-z]^+
+   1`] = `
+"export type Grammar = String
+export type String = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    Grammar <- String / UpperCaseChar
+    UpperCaseChar <- [A-Z]
+    String <- [a-z]^+
+   1`] = `
+"export type Grammar = String | UpperCaseChar
+export type UpperCaseChar = string
+export type String = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    Grammar <- String+
+    String <- [A-Z]^[a-z]^+
+   1`] = `
+"export type Grammar = String[]
+export type String = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    Grammar <- String^+
+    String <- [A-Z]^[a-z]^+
+   1`] = `
+"export type Grammar = string
+export type String = string"
+`;
+
+exports[`typeGenerator generates types for: 
+    String <- [a-z]^+
+    Grammar <- String / [A-Z]
+   1`] = `
+"export type String = string
+export type Grammar = String"
+`;
+
+exports[`typeGenerator generates types for: 
+    Stuff <- String / String
+    String <- [a-z]^+
+    Grammar <- Stuff
+   1`] = `
+"export type Stuff = String
+export type String = string
+export type Grammar = Stuff"
+`;
+
+exports[`typeGenerator generates types for: 
+    Things <- Stuff
+    String <- [a-z]^+
+    Stuff <- String / String
+    Grammar <- Things
+   1`] = `
+"export type Things = Stuff
+export type String = string
+export type Stuff = String
+export type Grammar = Things"
+`;
+
+exports[`typeGenerator generates types for: Grammar <- [A-Z] / [a-z] 1`] = `"export type Grammar = string"`;
+
+exports[`typeGenerator generates types for: Grammar <- [A-Z] / [a-z]^+ 1`] = `"export type Grammar = string"`;
+
+exports[`typeGenerator generates types for: Grammar <- [A-Z] ^ [a-z]^+ 1`] = `"export type Grammar = string"`;
+
+exports[`typeGenerator generates types for: Grammar <- [A-Z]^+ / [a-z]^+ 1`] = `"export type Grammar = string"`;
+
+exports[`typeGenerator generates types for: Grammar <- [a-z] 1`] = `"export type Grammar = string"`;
+
+exports[`typeGenerator generates types for: Grammar <- [a-z]^+ / [A-Z] 1`] = `"export type Grammar = string"`;
+
+exports[`typeGenerator generates types for: Grammar <- [a-z]^+ 1`] = `"export type Grammar = string"`;

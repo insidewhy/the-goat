@@ -33,6 +33,7 @@
     "test": "yarn jest",
     "test-debug": "node --inspect ./node_modules/.bin/jest --runInBand",
     "watch": "yarn build && concurrently 'yarn build-watch' 'yarn jest-watch'",
+    "watch-path": "./scripts/watch-path.sh",
     "validate": "yarn test && yarn lint && yarn validate-prettiness",
     "jest-watch": "yarn jest --watchAll"
   },

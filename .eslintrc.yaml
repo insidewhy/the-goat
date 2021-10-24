@@ -6,8 +6,6 @@ extends:
   - 'plugin:@typescript-eslint/recommended'
   - eslint-config-prettier
 rules:
-  no-unused-vars:
-    - warn
   '@typescript-eslint/member-delimiter-style':
     - warn
     - multiline:
@@ -17,4 +15,6 @@ rules:
   '@typescript-eslint/no-explicit-any':
     - off
   '@typescript-eslint/no-extra-semi':
+    - off
+  '@typescript-eslint/no-non-null-assertion':
     - off
