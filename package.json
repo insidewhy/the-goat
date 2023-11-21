@@ -42,7 +42,7 @@
   "devDependencies": {
     "@types/jest": "26.0.19",
     "@types/node": "14.14.16",
-    "@types/yargs": "15.0.12",
+    "@types/yargs": "15.0.19",
     "@typescript-eslint/eslint-plugin": "4.9.1",
     "@typescript-eslint/parser": "4.9.1",
     "concurrently": "5.3.0",
